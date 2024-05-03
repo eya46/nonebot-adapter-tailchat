@@ -1,0 +1,43 @@
+[tool.poetry]
+name = "nonebot-adapter-tailchat"
+version = "0.1.0b2"
+description = "NoneBot2 Tailchat 适配器 / Tailchat adapter for nonebot2"
+authors = ["eya46 <61458340+eya46@users.noreply.github.com>"]
+license = "Apache-2.0"
+readme = "README.md"
+packages = [{ include = "nonebot_adapter_tailchat" }]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+nonebot2 = ">=2.3.0"
+pydantic = ">=2.0.0"
+python-socketio = { extras = ["asyncio-client"], version = "^5.11.2" }
+msgpack = "^1.0.8"
+
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.4.2"
+nonebot2 = { extras = ["httpx"], version = "^2.3.0" }
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+line-length = 121
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "UP", "C", "T", "PYI", "PT", "Q", "I"]
+ignore = [
+    "E402", # 导包位置
+    "E722", # 空except
+    "C901", # 复杂函数名
+    "PYI048", # Function body must contain exactly one statement
+    "PYI021", # Docstrings should not be included in stubs
+    #    "T201", # no print
+]
+
+[tool.ruff.format]
+quote-style = "double"
+docstring-code-format = true
