@@ -358,8 +358,10 @@ class API(BaseBot, ABC):
             await self.call_api("chat.converse.findConverseInfo", converseId=converseId)
         )
 
-    async def findInviteByCode(self, *, code: str):
-        return await self.call_api("group.invite.findInviteByCode", code=code)
+    async def findInviteByCode(self, *, code: str) -> Optional[InviteCodeInfo]:
+        return TypeAdapter(Optional[InviteCodeInfo]).validate_python(
+            await self.call_api("group.invite.findInviteByCode", code=code)
+        )
 
     async def findOpenapiBotId(self, *, email: str):
         return await self.call_api("user.findOpenapiBotId", email=email)

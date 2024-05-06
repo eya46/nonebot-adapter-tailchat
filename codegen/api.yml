@@ -776,8 +776,7 @@ findConverseInfo:
   - 获取会话信息
 findInviteByCode:
   - group.invite.findInviteByCode
-  - - null
-    - null
+  - Optional[InviteCodeInfo]
   - code:
       - code
       - str
