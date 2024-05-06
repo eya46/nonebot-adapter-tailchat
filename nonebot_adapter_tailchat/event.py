@@ -160,7 +160,7 @@ class DefaultMessageEvent(MessageEvent):
 
     @property
     def replay(self) -> Optional[Replay]:
-        return self.meta.replay
+        return self.meta.replay if self.meta else None
 
     @override
     def get_message(self) -> Message:
@@ -175,14 +175,14 @@ class DefaultMessageEvent(MessageEvent):
         return self.converseId
 
     def _is_tome(self) -> bool:
-        return not self.is_group() or self.self_id in self.meta.mentions
+        return not self.is_group() or (self.meta and self.self_id in self.meta.mentions)
 
     @override
     def get_event_description(self) -> str:
         return (
             f"Message {self.id} from {self.author}"
             + (f"@[群:{self.groupId}]" if self.groupId else "")
-            + f" {str(self.content)}"
+            + f" {self.content.show()}"
         )
 
     def is_group(self) -> bool:
@@ -233,7 +233,7 @@ class AtMessageEvent(AtEvent, MessageEvent):
         return (
             f"AtMessage {self.payload.messageId} from {self.payload.messageAuthor}"
             + (f"@[群:{self.get_group_id()}]" if self.payload.groupId else "")
-            + f" {str(self.payload.messageSnippet)}"
+            + f" {self.payload.messageSnippet.show()}"
         )
 
 

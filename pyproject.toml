@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nonebot-adapter-tailchat"
-version = "0.1.0b2"
+version = "0.1.0b3"
 description = "NoneBot2 Tailchat 适配器 / Tailchat adapter for nonebot2"
 authors = ["eya46 <61458340+eya46@users.noreply.github.com>"]
 license = "Apache-2.0"
@@ -18,13 +18,14 @@ msgpack = "^1.0.8"
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.4.2"
 nonebot2 = { extras = ["httpx"], version = "^2.3.0" }
+pyyaml = "^6.0.1"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.ruff]
-line-length = 121
+line-length = 120
 target-version = "py39"
 
 [tool.ruff.lint]
