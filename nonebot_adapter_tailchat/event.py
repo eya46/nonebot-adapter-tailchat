@@ -160,7 +160,7 @@ class DefaultMessageEvent(MessageEvent):
 
     @property
     def replay(self) -> Optional[Replay]:
-        return self.meta.replay
+        return self.meta.replay if self.meta else None
 
     @override
     def get_message(self) -> Message:
@@ -175,7 +175,7 @@ class DefaultMessageEvent(MessageEvent):
         return self.converseId
 
     def _is_tome(self) -> bool:
-        return not self.is_group() or self.self_id in self.meta.mentions
+        return not self.is_group() or (self.meta and self.self_id in self.meta.mentions)
 
     @override
     def get_event_description(self) -> str:
