@@ -74,8 +74,10 @@ class BBCode(UserDict, ABC):
     def head(self) -> str:
         return (
             "["
-            + (f"{self.tag}={self.main}" if self.main else self.tag)
-            + " ".join(f"{k}={v}" for k, v in self.items() if k in self.keys_)
+            + (
+                (f"{self.tag}={self.main} " if self.main else self.tag)
+                + " ".join(f"{k}={v}" for k, v in self.items() if k in self.keys_ and k not in self.tags)
+            ).rstrip(" ")
             + "]"
         )
 
