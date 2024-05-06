@@ -54,3 +54,11 @@ TAILCHAT_TIME_OUT=5
 ## 详细配置项
 
 [config.py](./nonebot_adapter_tailchat/config.py)
+
+## 相关项目
+- [dcwatson/bbcode](https://github.com/dcwatson/bbcode)
+- [Tailchat](https://github.com/msgbyte/tailchat)
+- [python-socketio](https://github.com/miguelgrinberg/python-socketio)
+- [nonebot2](https://github.com/nonebot/nonebot2)
+- [pydantic2](https://docs.pydantic.dev/latest/)
+- ...
