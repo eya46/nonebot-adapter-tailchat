@@ -1,0 +1,1704 @@
+# name开头 ~ 为弃用
+# name结尾 ! 表示用http请求 | 表示用socketio请求 ~ 表示use_api_=False
+~login!:
+  - openapi.bot.login
+  - - null
+    - null
+  - jwt:
+      - jwt
+      - Optional[str]
+      - null
+  - 登录
+ackAll:
+  - chat.ack.all
+  - list[Ack]
+  - { }
+  - 获取所有会话的最后一条消息的ID
+allApp:
+  - openapi.app.all
+  - - null
+    - null
+  - { }
+  - 获取当前账号全部openapi app信息
+getApp:
+  - openapi.app.get
+  - - null
+    - null
+  - appId:
+      - appId
+      - str
+  - 获取openapi app信息
+whoami:
+  - user.whoami
+  - Whoami
+  - { }
+  - 获取当前账户信息
+getFile:
+  - file.get
+  - - null
+    - null
+  - objectName:
+      - objectName
+      - str
+  - '获取文件url (但是参数不知道填啥)'
+ackInbox:
+  - chat.inbox.ack
+  - - null
+    - null
+  - inboxItemIds:
+      - inboxItemIds
+      - list[str]
+  - ''
+allInbox:
+  - chat.inbox.all
+  - - null
+    - null
+  - { }
+  - ''
+isMember:
+  - group.isMember
+  - - null
+    - null
+  - groupId:
+      - groupId
+      - str
+  - '是否为指定群的成员'
+register:
+  - user.register
+  - - null
+    - null
+  - avatar:
+      - avatar
+      - Optional[str]
+      - null
+    email:
+      - email
+      - Optional[str]
+      - null
+    emailOTP:
+      - emailOTP
+      - Optional[str]
+      - null
+    nickname:
+      - nickname
+      - Optional[str]
+      - null
+    password:
+      - password
+      - str
+    username:
+      - username
+      - Optional[str]
+      - null
+  - ''
+saveFile:
+  - file.save
+  - - null
+    - null
+  - { }
+  - ''
+statFile:
+  - file.stat
+  - - null
+    - null
+  - objectName:
+      - objectName
+      - str
+  - ''
+authToken:
+  - openapi.app.authToken
+  - - null
+    - bool
+  - appId:
+      - appId
+      - str
+    capability:
+      - capability
+      - Optional[list[str]]
+      - null
+    token:
+      - token
+      - str
+  - '验证token'
+createApp:
+  - openapi.app.create
+  - - null
+    - null
+  - appDesc:
+      - appDesc
+      - str
+    appIcon:
+      - appIcon
+      - str
+    appName:
+      - appName
+      - str
+  - ''
+deleteApp:
+  - openapi.app.delete
+  - - null
+    - null
+  - appId:
+      - appId
+      - str
+  - ''
+loginUser:
+  - user.login
+  - - null
+    - null
+  - email:
+      - email
+      - Optional[str]
+      - null
+    password:
+      - password
+      - str
+    username:
+      - username
+      - Optional[str]
+      - null
+  - ''
+quitGroup:
+  - group.quitGroup
+  - - null
+    - null
+  - groupId:
+      - groupId
+      - str
+  - '退群'
+updateAck:
+  - chat.ack.update
+  - - null
+    - null
+  - converseId:
+      - converseId
+      - str
+    lastMessageId:
+      - lastMessageId
+      - str
+  - ''
+addBotUser:
+  - openapi.integration.addBotUser
+  - - null
+    - null
+  - appId:
+      - appId
+      - str
+    groupId:
+      - groupId
+      - str
+  - ''
+addRequest:
+  - friend.request.add
+  - - null
+    - null
+  - message:
+      - message
+      - Optional[str]
+      - null
+    to:
+      - to
+      - str
+  - ''
+allRelated:
+  - friend.request.allRelated
+  - - null
+    - null
+  - { }
+  - ''
+clearInbox:
+  - chat.inbox.clear
+  - - null
+    - null
+  - { }
+  - ''
+setAppInfo:
+  - openapi.app.setAppInfo
+  - - null
+    - null
+  - appId:
+      - appId
+      - str
+    fieldName:
+      - fieldName
+      - str
+    fieldValue:
+      - fieldValue
+      - str
+  - ''
+addConverse:
+  - user.dmlist.addConverse
+  - - null
+    - null
+  - converseId:
+      - converseId
+      - str
+  - ''
+addReaction:
+  - chat.message.addReaction
+  - - null
+    - bool
+  - emoji:
+      - emoji
+      - str
+    messageId:
+      - messageId
+      - str
+  - 添加消息表情
+applyInvite:
+  - group.invite.applyInvite
+  - - null
+    - null
+  - code:
+      - code
+      - str
+  - '通过邀请码加群'
+createGroup:
+  - group.createGroup
+  - GroupInfo
+  - name:
+      - name
+      - str
+    panels:
+      - panels
+      - list[Union[Panel, dict]]
+  - 创建群组
+denyRequest:
+  - friend.request.deny
+  - - null
+    - null
+  - requestId:
+      - requestId
+      - str
+  - ''
+getUserInfo:
+  - user.getUserInfo
+  - UserInfo
+  - userId:
+      - userId
+      - str
+  - 获取用户信息
+sendMessage:
+  - chat.message.sendMessage
+  - MessageRet
+  - content:
+      - content
+      - str
+    converseId:
+      - converseId
+      - str
+    groupId:
+      - groupId
+      - Optional[str]
+      - null
+    meta:
+      - meta
+      - Optional[dict]
+      - null
+    plain:
+      - plain
+      - Optional[str]
+      - null
+  - 发送消息
+verifyEmail:
+  - user.verifyEmail
+  - - null
+    - null
+  - email:
+      - email
+      - str
+  - ''
+configClient:
+  - config.client
+  - ClientConfig
+  - { }
+  - 获取客户端配置
+deleteInvite:
+  - group.invite.deleteInvite
+  - - null
+    - null
+  - groupId:
+      - groupId
+      - str
+    inviteId:
+      - inviteId
+      - str
+  - 删除邀请码
+getGroupData:
+  - group.extra.getGroupData
+  - - null
+    - null
+  - groupId:
+      - groupId
+      - str
+    name:
+      - name
+      - str
+  - ''
+getPanelData:
+  - group.extra.getPanelData
+  - - null
+    - dict
+  - groupId:
+      - groupId
+      - str
+    name:
+      - name
+      - str
+    panelId:
+      - panelId
+      - str
+  - 获取面板数据
+isGroupOwner:
+  - group.isGroupOwner
+  - - null
+    - null
+  - groupId:
+      - groupId
+      - str
+  - ''
+listRegistry:
+  - plugin.registry.list
+  - - null
+    - null
+  - { }
+  - ''
+removeFriend:
+  - friend.removeFriend
+  - - null
+    - null
+  - friendUserId:
+      - friendUserId
+      - str
+  - ''
+resolveToken:
+  - user.resolveToken
+  - TokenInfo
+  - token:
+      - token
+      - str
+  - 获取token信息
+acceptRequest:
+  - friend.request.accept
+  - - null
+    - null
+  - requestId:
+      - requestId
+      - str
+  - ''
+cancelRequest:
+  - friend.request.cancel
+  - - null
+    - null
+  - requestId:
+      - requestId
+      - str
+  - ''
+checkIsFriend:
+  - friend.checkIsFriend
+  - - null
+    - null
+  - targetId:
+      - targetId
+      - str
+  - ''
+deleteMessage:
+  - chat.message.deleteMessage
+  - - null
+    - null
+  - messageId:
+      - messageId
+      - str
+  - ''
+gatewayHealth:
+  - gateway.health
+  - Health
+  - { }
+  - 获取网关健康状态
+getAllFriends:
+  - friend.getAllFriends
+  - - null
+    - null
+  - { }
+  - ''
+getUserGroups:
+  - group.getUserGroups
+  - - null
+    - null
+  - { }
+  - ''
+recallMessage:
+  - chat.message.recallMessage
+  - Message
+  - messageId:
+      - messageId
+      - str
+  - 撤回消息, 大于15分钟的消息无法撤回, 会报错
+resetPassword:
+  - user.resetPassword
+  - - null
+    - null
+  - email:
+      - email
+      - str
+    otp:
+      - otp
+      - str
+    password:
+      - password
+      - str
+  - ''
+saveGroupData:
+  - group.extra.saveGroupData
+  - - null
+    - null
+  - data:
+      - data
+      - str
+    groupId:
+      - groupId
+      - str
+    name:
+      - name
+      - str
+  - ''
+savePanelData:
+  - group.extra.savePanelData
+  - - null
+    - bool
+  - data:
+      - data
+      - str
+    groupId:
+      - groupId
+      - str
+    name:
+      - name
+      - str
+    panelId:
+      - panelId
+      - str
+  - 保存面板数据
+searchMessage:
+  - chat.message.searchMessage
+  - list[Message]
+  - converseId:
+      - converseId
+      - str
+    groupId:
+      - groupId
+      - Optional[str]
+      - null
+    text:
+      - text
+      - str
+  - 搜索消息
+setAppBotInfo:
+  - openapi.app.setAppBotInfo
+  - - null
+    - null
+  - appId:
+      - appId
+      - str
+    fieldName:
+      - fieldName
+      - str
+    fieldValue:
+      - fieldValue
+      - Any
+  - ''
+forgetPassword:
+  - user.forgetPassword
+  - - null
+    - null
+  - email:
+      - email
+      - str
+  - ''
+getAllConverse:
+  - user.dmlist.getAllConverse
+  - - null
+    - null
+  - { }
+  - ''
+getPermissions:
+  - group.getPermissions
+  - - null
+    - null
+  - groupId:
+      - groupId
+      - str
+  - ''
+modifyPassword:
+  - user.modifyPassword
+  - - null
+    - null
+  - newPassword:
+      - newPassword
+      - str
+    oldPassword:
+      - oldPassword
+      - str
+  - ''
+removeConverse:
+  - user.dmlist.removeConverse
+  - - null
+    - null
+  - converseId:
+      - converseId
+      - str
+  - ''
+removeReaction:
+  - chat.message.removeReaction
+  - - null
+    - bool
+  - emoji:
+      - emoji
+      - str
+    messageId:
+      - messageId
+      - str
+  - 删除消息表情
+checkTokenValid:
+  - user.checkTokenValid
+  - - null
+    - null
+  - token:
+      - token
+      - str
+  - ''
+checkUserOnline:
+  - gateway.checkUserOnline
+  - list[bool]
+  - userIds:
+      - userIds
+      - list[str]
+  - 检查用户是否在线
+createGroupRole:
+  - group.createGroupRole
+  - GroupInfo
+  - groupId:
+      - groupId
+      - str
+    permissions:
+      - permissions
+      - list[str]
+    roleName:
+      - roleName
+      - str
+  - 创建群用户组
+deleteGroupRole:
+  - group.deleteGroupRole
+  - GroupInfo
+  - groupId:
+      - groupId
+      - str
+    roleId:
+      - roleId
+      - str
+  - 删除群用户组
+editGroupInvite:
+  - group.invite.editGroupInvite
+  - - null
+    - bool
+  - code:
+      - code
+      - str
+    expireAt:
+      - expireAt
+      - Optional[int]
+      - null
+    groupId:
+      - groupId
+      - str
+    usageLimit:
+      - usageLimit
+      - Optional[int]
+      - null
+  - 编辑群组邀请码
+ensurePluginBot:
+  - user.ensurePluginBot
+  - - null
+    - null
+  - avatar:
+      - avatar
+      - Optional[str]
+      - null
+    botId:
+      - botId
+      - str
+    nickname:
+      - nickname
+      - str
+  - ''
+findAndJoinRoom:
+  - chat.converse.findAndJoinRoom
+  - - null
+    - null
+  - { }
+  - ''
+getUserInfoList:
+  - user.getUserInfoList
+  - list[UserInfo]
+  - userIds:
+      - userIds
+      - list[str]
+  - 获取多个用户信息
+getUserSettings:
+  - user.getUserSettings
+  - - null
+    - dict
+  - { }
+  - 获取用户设置
+muteGroupMember:
+  - group.muteGroupMember
+  - - null
+    - bool
+  - groupId:
+      - groupId
+      - str
+    memberId:
+      - memberId
+      - str
+    muteMs:
+      - muteMs
+      - int
+  - 禁言群成员
+setAppOAuthInfo:
+  - openapi.app.setAppOAuthInfo
+  - - null
+    - null
+  - appId:
+      - appId
+      - str
+    fieldName:
+      - fieldName
+      - str
+    fieldValue:
+      - fieldValue
+      - Any
+  - ''
+setUserSettings:
+  - user.setUserSettings
+  - - null
+    - dict
+  - settings:
+      - settings
+      - dict
+  - 修改用户设置
+updateUserExtra:
+  - user.updateUserExtra
+  - - null
+    - null
+  - fieldName:
+      - fieldName
+      - str
+    fieldValue:
+      - fieldValue
+      - Any
+  - ''
+updateUserField:
+  - user.updateUserField
+  - - null
+    - null
+  - fieldName:
+      - fieldName
+      - str
+    fieldValue:
+      - fieldValue
+      - Any
+  - ''
+createDMConverse:
+  - chat.converse.createDMConverse
+  - - null
+    - null
+  - memberIds:
+      - memberIds
+      - list[str]
+  - ''
+createGroupPanel:
+  - group.createGroupPanel
+  - - null
+    - dict
+  - groupId:
+      - groupId
+      - str
+    meta:
+      - meta
+      - dict
+    name:
+      - name
+      - str
+    pluginPanelName:
+      - pluginPanelName
+      - Optional[str]
+      - null
+    provider:
+      - provider
+      - Optional[str]
+      - null
+    type_:
+      - type
+      - int
+  - 创建群组面板
+deleteGroupPanel:
+  - group.deleteGroupPanel
+  - - null
+    - null
+  - groupId:
+      - groupId
+      - str
+    panelId:
+      - panelId
+      - str
+  - ''
+ensureOpenapiBot:
+  - user.ensureOpenapiBot
+  - - null
+    - null
+  - avatar:
+      - avatar
+      - Optional[str]
+      - null
+    botId:
+      - botId
+      - str
+    nickname:
+      - nickname
+      - str
+  - ''
+findConverseInfo:
+  - chat.converse.findConverseInfo
+  - ConverseInfo
+  - converseId:
+      - converseId
+      - str
+  - 获取会话信息
+findInviteByCode:
+  - group.invite.findInviteByCode
+  - - null
+    - null
+  - code:
+      - code
+      - str
+  - ''
+findOpenapiBotId:
+  - user.findOpenapiBotId
+  - - null
+    - null
+  - email:
+      - email
+      - str
+  - ''
+modifyGroupPanel:
+  - group.modifyGroupPanel
+  - - null
+    - null
+  - fallbackPermissions:
+      - fallbackPermissions
+      - Optional[list[str]]
+      - null
+    groupId:
+      - groupId
+      - str
+    meta:
+      - meta
+      - Optional[dict]
+      - null
+    name:
+      - name
+      - str
+    panelId:
+      - panelId
+      - str
+    permissionMap:
+      - permissionMap
+      - Optional[dict]
+      - null
+    pluginPanelName:
+      - pluginPanelName
+      - Optional[str]
+      - null
+    provider:
+      - provider
+      - Optional[str]
+      - null
+    type_:
+      - type
+      - int
+  - ''
+setAppCapability:
+  - openapi.app.setAppCapability
+  - - null
+    - null
+  - appId:
+      - appId
+      - str
+    capability:
+      - capability
+      - list[str]
+  - ''
+updateGroupField:
+  - group.updateGroupField
+  - - null
+    - null
+  - fieldName:
+      - fieldName
+      - str
+    fieldValue:
+      - fieldValue
+      - Any
+    groupId:
+      - groupId
+      - str
+  - 更新群组字段
+createGroupInvite:
+  - group.invite.createGroupInvite
+  - InviteCodeInfo
+  - groupId:
+      - groupId
+      - str
+    inviteType:
+      - inviteType
+      - Literal['normal', 'permanent']
+  - 创建群组邀请码
+deleteGroupMember:
+  - group.deleteGroupMember
+  - - null
+    - null
+  - groupId:
+      - groupId
+      - str
+    memberId:
+      - memberId
+      - str
+  - ''
+getGroupBasicInfo:
+  - group.getGroupBasicInfo
+  - - null
+    - null
+  - groupId:
+      - groupId
+      - str
+  - ''
+setFriendNickname:
+  - friend.setFriendNickname
+  - - null
+    - null
+  - nickname:
+      - nickname
+      - str
+    targetId:
+      - targetId
+      - str
+  - ''
+updateGroupConfig:
+  - group.updateGroupConfig
+  - - null
+    - null
+  - configName:
+      - configName
+      - str
+    configValue:
+      - configValue
+      - Any
+    groupId:
+      - groupId
+      - str
+  - 更新群组配置
+claimTemporaryUser:
+  - user.claimTemporaryUser
+  - - null
+    - null
+  - email:
+      - email
+      - str
+    emailOTP:
+      - emailOTP
+      - Optional[str]
+      - null
+    password:
+      - password
+      - str
+    userId:
+      - userId
+      - str
+    username:
+      - username
+      - Optional[str]
+      - null
+  - ''
+fetchNearbyMessage:
+  - chat.message.fetchNearbyMessage
+  - list[Message]
+  - converseId:
+      - converseId
+      - str
+    groupId:
+      - groupId
+      - str
+    messageId:
+      - messageId
+      - str
+  - 获取指定消息的上下文
+verifyEmailWithOTP:
+  - user.verifyEmailWithOTP
+  - - null
+    - null
+  - emailOTP:
+      - emailOTP
+      - str
+  - '验证邮箱'
+buildFriendRelation:
+  - friend.buildFriendRelation
+  - - null
+    - null
+  - user1:
+      - user1
+      - str
+    user2:
+      - user2
+      - str
+  - ''
+createTemporaryUser:
+  - user.createTemporaryUser
+  - - null
+    - null
+  - nickname:
+      - nickname
+      - str
+  - ''
+updateGroupRoleName:
+  - group.updateGroupRoleName
+  - GroupInfo
+  - groupId:
+      - groupId
+      - str
+    roleId:
+      - roleId
+      - str
+    roleName:
+      - roleName
+      - str
+  - 更新群用户组名称
+fetchConverseMessage:
+  - chat.message.fetchConverseMessage
+  - list[Message]
+  - converseId:
+      - converseId
+      - str
+  - 获取会话消息
+getAllGroupInviteCode:
+  - group.invite.getAllGroupInviteCode
+  - list[InviteCodeInfo]
+  - groupId:
+      - groupId
+      - str
+  - 获取所有群组邀请码
+appendGroupMemberRoles:
+  - group.appendGroupMemberRoles
+  - - null
+    - null
+  - groupId:
+      - groupId
+      - str
+    memberIds:
+      - memberIds
+      - list[str]
+    roles:
+      - roles
+      - list[str]
+  - 添加群用户组成员
+removeGroupMemberRoles:
+  - group.removeGroupMemberRoles
+  - - null
+    - null
+  - groupId:
+      - groupId
+      - str
+    memberIds:
+      - memberIds
+      - list[str]
+    roles:
+      - roles
+      - list[str]
+  - 移除群用户组成员
+appendDMConverseMembers:
+  - chat.converse.appendDMConverseMembers
+  - - null
+    - null
+  - converseId:
+      - converseId
+      - str
+    memberIds:
+      - memberIds
+      - list[str]
+  - ''
+getGroupLobbyConverseId:
+  - group.getGroupLobbyConverseId
+  - - null
+    - null
+  - groupId:
+      - groupId
+      - str
+  - ''
+searchUserWithUniqueName:
+  - user.searchUserWithUniqueName
+  - - null
+    - null
+  - uniqueName:
+      - uniqueName
+      - str
+  - ''
+fetchConverseLastMessages:
+  - chat.message.fetchConverseLastMessages
+  - list[LastMessages]
+  - converseIds:
+      - converseIds
+      - list[str]
+  - 获取多个会话的最后一条消息
+getJoinedGroupAndPanelIds:
+  - group.getJoinedGroupAndPanelIds
+  - - null
+    - null
+  - { }
+  - ''
+updateGroupRolePermission:
+  - group.updateGroupRolePermission
+  - GroupInfo
+  - groupId:
+      - groupId
+      - str
+    permissions:
+      - permissions
+      - list[str]
+    roleId:
+      - roleId
+      - str
+  - 更新群用户组权限
+plugin:com.msgbyte.tasks.add:
+  - plugin:com.msgbyte.tasks.add
+  - - null
+    - null
+  - assignee:
+      - assignee
+      - Optional[list[str]]
+      - null
+    description:
+      - description
+      - Optional[str]
+      - null
+    expiredAt:
+      - expiredAt
+      - Optional[str]
+      - null
+    title:
+      - title
+      - str
+  - ''
+plugin:com.msgbyte.tasks.all:
+  - plugin:com.msgbyte.tasks.all
+  - - null
+    - null
+  - { }
+  - ''
+plugin:com.msgbyte.tasks.done:
+  - plugin:com.msgbyte.tasks.done
+  - - null
+    - null
+  - taskId:
+      - taskId
+      - str
+  - ''
+plugin:com.msgbyte.topic.list:
+  - plugin:com.msgbyte.topic.list
+  - - null
+    - null
+  - groupId:
+      - groupId
+      - str
+    page:
+      - page
+      - Optional[int]
+      - null
+    panelId:
+      - panelId
+      - str
+    size:
+      - size
+      - Optional[int]
+      - null
+  - ''
+plugin:com.msgbyte.discover.all:
+  - plugin:com.msgbyte.discover.all
+  - - null
+    - null
+  - page:
+      - page
+      - int
+    size:
+      - size
+      - int
+  - ''
+plugin:com.msgbyte.tasks.undone:
+  - plugin:com.msgbyte.tasks.undone
+  - - null
+    - null
+  - taskId:
+      - taskId
+      - str
+  - ''
+plugin:com.msgbyte.tasks.update:
+  - plugin:com.msgbyte.tasks.update
+  - - null
+    - null
+  - assignee:
+      - assignee
+      - Optional[str]
+      - null
+    description:
+      - description
+      - Optional[str]
+      - null
+    expiredAt:
+      - expiredAt
+      - Optional[str]
+      - null
+    taskId:
+      - taskId
+      - str
+    title:
+      - title
+      - Optional[str]
+      - null
+  - ''
+plugin:com.msgbyte.topic.create:
+  - plugin:com.msgbyte.topic.create
+  - - null
+    - null
+  - content:
+      - content
+      - str
+    groupId:
+      - groupId
+      - str
+    meta:
+      - meta
+      - Optional[dict]
+      - null
+    panelId:
+      - panelId
+      - str
+  - ''
+plugin:com.msgbyte.topic.delete:
+  - plugin:com.msgbyte.topic.delete
+  - - null
+    - null
+  - groupId:
+      - groupId
+      - str
+    panelId:
+      - panelId
+      - str
+    topicId:
+      - topicId
+      - str
+  - ''
+plugin:com.msgbyte.discover.join:
+  - plugin:com.msgbyte.discover.join
+  - - null
+    - null
+  - groupId:
+      - groupId
+      - str
+  - ''
+plugin:com.msgbyte.linkmeta.fetch:
+  - plugin:com.msgbyte.linkmeta.fetch
+  - - null
+    - null
+  - url:
+      - url
+      - str
+  - ''
+plugin:com.msgbyte.agora.available:
+  - plugin:com.msgbyte.agora.available
+  - - null
+    - null
+  - { }
+  - ''
+plugin:com.msgbyte.getui.available:
+  - plugin:com.msgbyte.getui.available
+  - - null
+    - null
+  - { }
+  - ''
+plugin:com.msgbyte.livekit.available:
+  - plugin:com.msgbyte.livekit.available
+  - - null
+    - null
+  - { }
+  - ''
+plugin:com.msgbyte.simplenotify.list:
+  - plugin:com.msgbyte.simplenotify.list
+  - - null
+    - null
+  - groupId:
+      - groupId
+      - str
+    type_:
+      - type
+      - Literal['user', 'group']
+  - ''
+plugin:com.msgbyte.prettyinvite.badge:
+  - plugin:com.msgbyte.prettyinvite.badge
+  - - null
+    - null
+  - inviteCode:
+      - inviteCode
+      - str
+  - ''
+plugin:com.msgbyte.wxpusher.available:
+  - plugin:com.msgbyte.wxpusher.available
+  - - null
+    - null
+  - { }
+  - ''
+plugin:com.msgbyte.simplenotify.delete:
+  - plugin:com.msgbyte.simplenotify.delete
+  - - null
+    - null
+  - groupId:
+      - groupId
+      - str
+    subscribeId:
+      - subscribeId
+      - str
+  - ''
+plugin:com.msgbyte.topic.createComment:
+  - plugin:com.msgbyte.topic.createComment
+  - - null
+    - null
+  - content:
+      - content
+      - str
+    groupId:
+      - groupId
+      - str
+    panelId:
+      - panelId
+      - str
+    replyCommentId:
+      - replyCommentId
+      - Optional[str]
+      - null
+    topicId:
+      - topicId
+      - str
+  - ''
+plugin:com.msgbyte.github.subscribe.add:
+  - plugin:com.msgbyte.github.subscribe.add
+  - - null
+    - null
+  - groupId:
+      - groupId
+      - str
+    repoName:
+      - repoName
+      - str
+    textPanelId:
+      - textPanelId
+      - str
+  - ''
+plugin:com.msgbyte.github.subscribe.list:
+  - plugin:com.msgbyte.github.subscribe.list
+  - - null
+    - null
+  - groupId:
+      - groupId
+      - str
+  - ''
+plugin:com.msgbyte.github.subscribe.delete:
+  - plugin:com.msgbyte.github.subscribe.delete
+  - - null
+    - null
+  - groupId:
+      - groupId
+      - str
+    subscribeId:
+      - subscribeId
+      - str
+  - ''
+plugin:com.msgbyte.iam.availableStrategies:
+  - plugin:com.msgbyte.iam.availableStrategies
+  - - null
+    - null
+  - { }
+  - ''
+plugin:com.msgbyte.simplenotify.addUserSubscribe:
+  - plugin:com.msgbyte.simplenotify.addUserSubscribe
+  - - null
+    - null
+  - { }
+  - ''
+plugin:com.msgbyte.simplenotify.webhook.callback:
+  - plugin:com.msgbyte.simplenotify.webhook.callback
+  - - null
+    - null
+  - subscribeId:
+      - subscribeId
+      - str
+    text:
+      - text
+      - str
+  - ''
+plugin:com.msgbyte.simplenotify.addGroupSubscribe:
+  - plugin:com.msgbyte.simplenotify.addGroupSubscribe
+  - - null
+    - null
+  - groupId:
+      - groupId
+      - str
+    textPanelId:
+      - textPanelId
+      - str
+  - ''
+plugin:com.msgbyte.github.subscribe.webhook.callback:
+  - plugin:com.msgbyte.github.subscribe.webhook.callback
+  - - null
+    - null
+  - { }
+  - ''
+upload!~:
+  - upload
+  - FileInfo
+  - file:
+      - file
+      - bytes
+  - 上传文件
+~banUser:
+  - user.banUser
+  - - null
+    - null
+  - userId:
+      - userId
+      - str
+  - ''
+~addToSet:
+  - config.addToSet
+  - - null
+    - null
+  - key:
+      - key
+      - str
+    value:
+      - value
+      - Any
+  - ''
+~sendMail:
+  - mail.sendMail
+  - - null
+    - null
+  - html:
+      - html
+      - str
+    subject:
+      - subject
+      - str
+    to:
+      - to
+      - str
+  - ''
+~addMember:
+  - group.addMember
+  - - null
+    - null
+  - groupId:
+      - groupId
+      - str
+    userId:
+      - userId
+      - str
+  - ''
+~allConfig:
+  - config.all
+  - - null
+    - null
+  - { }
+  - ''
+~getConfig:
+  - config.get
+  - - null
+    - null
+  - key:
+      - key
+      - str
+  - ''
+~joinGroup:
+  - group.joinGroup
+  - - null
+    - null
+  - groupId:
+      - groupId
+      - str
+  - ''
+~setConfig:
+  - config.set
+  - - null
+    - null
+  - key:
+      - key
+      - str
+    value:
+      - value
+      - Any
+  - ''
+~unbanUser:
+  - user.unbanUser
+  - - null
+    - null
+  - userId:
+      - userId
+      - str
+  - ''
+~deleteFile:
+  - file.delete
+  - - null
+    - null
+  - objectName:
+      - objectName
+      - str
+  - ''
+~appendInbox:
+  - chat.inbox.append
+  - - null
+    - null
+  - payload:
+      - payload
+      - Any
+    type_:
+      - type
+      - str
+    userId:
+      - userId
+      - Optional[str]
+      - null
+  - ''
+~batchAppend:
+  - chat.inbox.batchAppend
+  - - null
+    - null
+  - payload:
+      - payload
+      - Any
+    type_:
+      - type
+      - str
+    userIds:
+      - userIds
+      - list[str]
+  - ''
+~getGroupInfo:
+  - group.getGroupInfo
+  - - null
+    - null
+  - groupId:
+      - groupId
+      - str
+  - ''
+~removeMessage:
+  - chat.inbox.removeMessage
+  - - null
+    - null
+  - converseId:
+      - converseId
+      - str
+    groupId:
+      - groupId
+      - Optional[str]
+      - null
+    messageId:
+      - messageId
+      - str
+    userId:
+      - userId
+      - Optional[str]
+      - null
+  - ''
+~signUserToken:
+  - user.signUserToken
+  - - null
+    - null
+  - userId:
+      - userId
+      - str
+  - ''
+~findUserByEmail:
+  - user.findUserByEmail
+  - - null
+    - null
+  - email:
+      - email
+      - str
+  - ''
+~saveFileWithUrl:
+  - file.saveFileWithUrl
+  - - null
+    - null
+  - fileUrl:
+      - fileUrl
+      - str
+  - ''
+~setClientConfig:
+  - config.setClientConfig
+  - - null
+    - null
+  - key:
+      - key
+      - str
+    value:
+      - value
+      - Any
+  - ''
+~generateUserToken:
+  - user.generateUserToken
+  - - null
+    - null
+  - avatar:
+      - avatar
+      - str
+    email:
+      - email
+      - str
+    nickname:
+      - nickname
+      - str
+    userId:
+      - userId
+      - str
+  - ''
+~findUserByUsername:
+  - user.findUserByUsername
+  - - null
+    - null
+  - username:
+      - username
+      - str
+  - ''
+~getOrCreateBotAccount:
+  - openapi.bot.getOrCreateBotAccount
+  - - null
+    - null
+  - appId:
+      - appId
+      - str
+  - ''
+~getUserAllPermissions:
+  - group.getUserAllPermissions
+  - - null
+    - null
+  - groupId:
+      - groupId
+      - str
+    userId:
+      - userId
+      - str
+  - ''
+~plugin:com.msgbyte.livekit.url:
+  - plugin:com.msgbyte.livekit.url
+  - - null
+    - null
+  - { }
+  - ''
+~plugin:com.msgbyte.agora.webhook:
+  - plugin:com.msgbyte.agora.webhook
+  - - null
+    - null
+  - eventType:
+      - eventType
+      - int
+    noticeId:
+      - noticeId
+      - str
+    notifyMs:
+      - notifyMs
+      - int
+    payload:
+      - payload
+      - Any
+    productId:
+      - productId
+      - int
+  - ''
+~plugin:com.msgbyte.livekit.webhook:
+  - plugin:com.msgbyte.livekit.webhook
+  - - null
+    - null
+  - { }
+  - ''
+~plugin:com.msgbyte.livekit.inviteCall:
+  - plugin:com.msgbyte.livekit.inviteCall
+  - - null
+    - null
+  - roomName:
+      - roomName
+      - str
+    targetUserIds:
+      - targetUserIds
+      - list[str]
+  - ''
+~plugin:com.msgbyte.iam.github.loginUrl:
+  - plugin:com.msgbyte.iam.github.loginUrl
+  - - null
+    - null
+  - { }
+  - ''
+~plugin:com.msgbyte.iam.github.redirect:
+  - plugin:com.msgbyte.iam.github.redirect
+  - - null
+    - null
+  - { }
+  - ''
+~plugin:com.msgbyte.livekit.roomMembers:
+  - plugin:com.msgbyte.livekit.roomMembers
+  - - null
+    - null
+  - roomName:
+      - roomName
+      - str
+  - ''
+~plugin:com.msgbyte.livekit.generateToken:
+  - plugin:com.msgbyte.livekit.generateToken
+  - - null
+    - null
+  - roomName:
+      - roomName
+      - str
+  - ''
+~plugin:com.msgbyte.agora.generateJoinInfo:
+  - plugin:com.msgbyte.agora.generateJoinInfo
+  - - null
+    - null
+  - channelName:
+      - channelName
+      - str
+    userId:
+      - userId
+      - Optional[str]
+      - null
+  - ''
+~plugin:com.msgbyte.agora.getChannelUserList:
+  - plugin:com.msgbyte.agora.getChannelUserList
+  - - null
+    - null
+  - channelName:
+      - channelName
+      - str
+  - ''
+~plugin:com.msgbyte.welcome.joinGroupCallback:
+  - plugin:com.msgbyte.welcome.joinGroupCallback
+  - - null
+    - null
+  - groupId:
+      - groupId
+      - str
+  - ''
