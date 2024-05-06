@@ -182,7 +182,7 @@ class DefaultMessageEvent(MessageEvent):
         return (
             f"Message {self.id} from {self.author}"
             + (f"@[群:{self.groupId}]" if self.groupId else "")
-            + f" {str(self.content)}"
+            + f" {self.content.show()}"
         )
 
     def is_group(self) -> bool:
@@ -233,7 +233,7 @@ class AtMessageEvent(AtEvent, MessageEvent):
         return (
             f"AtMessage {self.payload.messageId} from {self.payload.messageAuthor}"
             + (f"@[群:{self.get_group_id()}]" if self.payload.groupId else "")
-            + f" {str(self.payload.messageSnippet)}"
+            + f" {self.payload.messageSnippet.show()}"
         )
 
 

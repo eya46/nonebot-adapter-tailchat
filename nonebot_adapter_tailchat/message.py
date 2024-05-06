@@ -337,3 +337,6 @@ class Message(BaseMessage[MessageSegment]):
 
     def decode(self) -> str:
         return "".join(seg.decode() for seg in self)
+
+    def show(self) -> str:
+        return " ".join(seg.decode() for seg in self)
