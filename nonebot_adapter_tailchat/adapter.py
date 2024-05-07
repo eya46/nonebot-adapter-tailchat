@@ -18,7 +18,7 @@ from .const import ADAPTER_NAME
 from .event import EVENT_CLASSES, Event
 from .exception import ActionFailed, DisconnectException
 from .message import Message
-from .util import log
+from .util import log, retry
 
 
 class Adapter(BaseAdapter):
@@ -67,7 +67,13 @@ class Adapter(BaseAdapter):
         if any(i.useHttp for i in self.adapter_config.bots_info) and not self.is_http_client_driver:
             raise RuntimeError("HTTPClientMixin is required when use http")
         for i in self.adapter_config.bots_info:
-            self.tasks.append(create_task(self._handle_bot(i), name=f"handle_bot_{i.appId}"))
+            self.tasks.append(
+                create_task(
+                    # 防止因 socketio/tailchat 奇怪错误导致的异常
+                    retry(self.adapter_config.reconnect_interval, self._handle_bot)(i),
+                    name=f"handle_bot_{i.appId}",
+                )
+            )
 
     async def _shutdown(self):
         for task in self.tasks:
@@ -81,7 +87,7 @@ class Adapter(BaseAdapter):
         connected = False
         added = False
 
-        async def _wait():
+        async def _wait():  # 确保断连后打断wait
             nonlocal connected
             while True:
                 if not connected:
@@ -103,7 +109,7 @@ class Adapter(BaseAdapter):
                     first = False
                 await bot.update_info(bot.base_info.jwt)
                 if not added:
-                    self.bot_connect(bot)
+                    self._bot_connect(bot)
                     added = True
                 connected = True
                 await gather(bot.sio.wait(), _wait())
@@ -116,10 +122,22 @@ class Adapter(BaseAdapter):
                 print_exc()
             connected = False
             if added:
-                self.bot_disconnect(bot)
+                self._bot_disconnect(bot)
                 added = False
             log.debug(f"Bot {escape_tag(str(bot))} will reconnect in {self.adapter_config.reconnect_interval} seconds")
             await sleep(self.adapter_config.reconnect_interval)
+
+    def _bot_connect(self, bot: Bot):
+        try:
+            self.bot_connect(bot)
+        except Exception as e:
+            log.trace(f"Error when bot_connect: {repr(e)}")
+
+    def _bot_disconnect(self, bot: Bot):
+        try:
+            self.bot_disconnect(bot)
+        except Exception as e:
+            log.trace(f"Error when bot_disconnect: {repr(e)}")
 
     @staticmethod
     async def _connect_bot(bot: Bot, first: bool = True):
