@@ -191,6 +191,11 @@ class Img(BBCode):
         return self.text
 
 
+@_register_bbcode
+class Code(BBCode):
+    tags = {"code"}
+
+
 @dataclass
 class MessageSegment(BaseMessageSegment["Message"]):
     data: Box
@@ -215,20 +220,29 @@ class MessageSegment(BaseMessageSegment["Message"]):
         return not any(not (_.tags & TEXTS) for _ in self.data["tags"])
 
     @classmethod
-    def card(cls, *, text: str, type_: str, data: str) -> "MessageSegment":
+    def card(cls, *, text: str, type_: str, data: str) -> Self:
         return cls.build(text, [Card], {"type": type_, "data": data})
 
     @classmethod
-    def at(cls, *, uid: str, nickname: Optional[str] = None) -> "MessageSegment":
+    def at(cls, *, uid: str, nickname: Optional[str] = None) -> Self:
         return cls.build(nickname or uid, [At], {"at": uid})
 
     @classmethod
-    def file(cls, *, name: str, url: str) -> "MessageSegment":
+    def file(cls, *, name: str, url: str) -> Self:
         return cls.build(name, [File], {"url": url})
 
     @classmethod
     def url(cls, *, url: str, text: Optional[str] = None) -> Self:
         return cls.build(text or url, [Url], {"url": url})
+
+    @classmethod
+    def panel(cls, *, groupId: str, panelId: str, text: str) -> Self:
+        # 同url 例如 [url=/main/group/<groupId>/<panelId>]#大厅[/url]
+        return cls.build(text, [Url], {"url": f"/main/group/{groupId}/{panelId}"})
+
+    @classmethod
+    def code(cls, text: str) -> Self:
+        return cls.build(text, [Code])
 
     @classmethod
     def text(cls, text: str, *, b: bool = False, i: bool = False, u: bool = False, s: bool = False) -> Self:
@@ -261,7 +275,7 @@ class MessageSegment(BaseMessageSegment["Message"]):
     def build(cls, text: str, tags: list[type[B]], extra: Optional[dict[str, str]] = None) -> Self:
         if extra is None:
             extra = {}
-        _ = cls("text", {"text": text, "extra": extra, "tags": []})
+        _ = cls("rich" if len(tags) > 0 else "text", {"text": text, "extra": extra, "tags": []})
         for tag in tags:
             _.data["tags"].append(tag(box=_.data))
         return _
