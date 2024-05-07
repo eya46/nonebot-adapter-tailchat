@@ -87,6 +87,8 @@ async def test_message_extend():
         MessageSegment.text("", i=True).extend(MessageSegment.text("test喵", b=True)).decode() == "[i][b]test喵[/b][/i]"
     )
 
+    assert MessageSegment.code("echo tailchat 666").decode() == "[code]echo tailchat 666[/code]"
+
 
 @pytest.mark.asyncio()
 async def test_register_bbcode():
