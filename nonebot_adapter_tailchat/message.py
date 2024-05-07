@@ -269,7 +269,11 @@ class MessageSegment(BaseMessageSegment["Message"]):
     def tag_relation(self) -> set[int]:
         return {_.relation for _ in self.data["tags"]}
 
-    def extend(self, seg: "MessageSegment", strict: bool = True) -> Self:
+    def merge_text(self, seg: Union[str, Self]) -> Self:
+        self.data["text"] += seg if isinstance(self, str) else seg.get_text()
+        return self
+
+    def extend(self, seg: Self, strict: bool = True) -> Self:
         """
         新消息段的 text = self.text or seg.text
         :param seg: 要合并的消息段
@@ -307,6 +311,9 @@ class MessageSegment(BaseMessageSegment["Message"]):
                 return _
         return None
 
+    def get_tags(self) -> list[B]:
+        return self.data["tags"]
+
     def decode(self) -> str:
         _ = deque([self.data["text"]])
         for tag in self.data["tags"][::-1]:
@@ -328,13 +335,44 @@ def _update_parser(func):
 class Message(BaseMessage[MessageSegment]):
     parser: Parser = Parser(MessageSegment, BBCODES)
 
+    def __init__(
+        self,
+        message: Union[str, None, Iterable[MessageSegment], MessageSegment] = None,
+    ):
+        super().__init__(message)
+        self.reduce()  # 合并连续的纯文本
+
+    def reduce(self):
+        # MIT https://github.com/nonebot/adapter-onebot/blob/v2.4.3/nonebot/adapters/onebot/v11/message.py#L334-L342
+        """合并消息内连续的纯文本段。"""
+        index = 1
+        while index < len(self):
+            if len(self[index - 1].get_tags()) == 0 and len(self[index].get_tags()) == 0:
+                self[index - 1].merge_text(self[index])
+                del self[index]
+            else:
+                index += 1
+
+    def merge_text(self) -> Self:
+        if len(self) < 2:
+            return self
+        _ = [self[0]]
+        for seg in self[1:]:
+            seg: MessageSegment
+            if len(seg.get_tags()) == 0 and len(_[-1].get_tags()) == 0:
+                _[-1].merge_text(seg)
+                continue
+            _.append(seg)
+        return Message(_)
+
     @classmethod
     def update_parser(cls):
         cls.parser = Parser(MessageSegment, BBCODES)
 
-    @staticmethod
-    def register_bbcode(code: Union[int, type[B]]):
-        return _register_bbcode(code)
+    @classmethod
+    def register_bbcode(cls, code: Union[int, type[B]]):
+        _register_bbcode(code)
+        cls.update_parser()
 
     @staticmethod
     def register_text(bbcode: type[B]) -> type[B]:
