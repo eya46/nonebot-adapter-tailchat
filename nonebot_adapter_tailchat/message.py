@@ -92,7 +92,7 @@ class BBCode(UserDict, ABC):
     @classmethod
     def tag_in(cls, msg: Union["MessageSegment", "Message"]) -> bool:
         if isinstance(msg, MessageSegment):
-            return any(type(_) is cls for _ in msg.data["tags"])
+            return any(isinstance(_, cls) for _ in msg.data["tags"])
 
         return any(BBCode.tag_in(_) for _ in msg)
 
@@ -394,18 +394,15 @@ class Message(BaseMessage[MessageSegment]):
         return _register_text(bbcode)
 
     def __contains__(  # pyright: ignore[reportIncompatibleMethodOverride]
-        self, value: Union[MessageSegment, str, B, type[B]]
+        self, value: Union[MessageSegment, str, type[B]]
     ) -> bool:
-        """检查消息段是否存在
-
-        参数:
-            value: 消息段或消息段类型
-        返回:
-            消息内是否存在给定消息段或给定类型的消息段
-        """
-        if value is type[B]:
+        if issubclass(value, BBCode):
             return value.tag_in(self)
         return super().__contains__(value)
+
+    @override
+    def has(self, value: Union[MessageSegment, str, type[B]]) -> bool:
+        return value in self
 
     @classmethod
     @override
