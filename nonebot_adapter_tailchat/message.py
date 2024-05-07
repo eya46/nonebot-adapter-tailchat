@@ -270,12 +270,19 @@ class MessageSegment(BaseMessageSegment["Message"]):
         return {_.relation for _ in self.data["tags"]}
 
     def extend(self, seg: "MessageSegment", strict: bool = True) -> Self:
+        """
+        新消息段的 text = self.text or seg.text
+        :param seg: 要合并的消息段
+        :param strict: 严格模式
+        :return: 新消息段
+        """
         if strict and (relations := self.tag_relation()) and any(_.relation not in relations for _ in seg.data["tags"]):
             raise ValueError("Tag relation not match")
         self.data["extra"].update(seg.data["extra"])
         for idx, tag in enumerate(seg.data["tags"]):
             seg.data["tags"][idx] = tag.__class__(box=self.data)
         self.data["tags"].extend(seg.data["tags"])
+        self.set_text(self.get_text() or seg.get_text())
         return self
 
     def remove(self, bbcode: Union[B, type[B]]) -> Self:
