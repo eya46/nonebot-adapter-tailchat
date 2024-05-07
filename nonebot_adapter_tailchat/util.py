@@ -1,4 +1,7 @@
+from asyncio import sleep
+from functools import wraps
 from io import StringIO
+from traceback import print_exc
 from typing import Any, Optional, Union
 
 from msgpack import ExtType
@@ -54,3 +57,16 @@ class Log:
 
 
 log = Log()
+
+
+def retry(wait_time: int, func):
+    @wraps(func)
+    async def wrapper(*args, **kwargs):
+        try:
+            await func(*args, **kwargs)
+        except Exception as e:
+            log.error(f"Error when exec {func.__name__}: {repr(e)}")
+            print_exc()
+        await sleep(wait_time)
+
+    return wrapper
