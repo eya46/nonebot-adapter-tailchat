@@ -29,7 +29,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from collections import OrderedDict, defaultdict, deque
 from shlex import split
 from sys import getrecursionlimit
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Tuple, Union
 
 if TYPE_CHECKING:
     from .message import B, MessageSegment
@@ -118,7 +118,7 @@ class Parser:
         data = data.replace("\r\n", "\n").replace("\r", "\n")
         pos = 0
         ld = len(data)
-        tokens = []
+        tokens: list[Union["MessageSegment", Tuple["MessageSegment", str, str]]] = []
         tags: dict[str, deque["MessageSegment"]] = defaultdict(deque)
         while pos < ld:
             start = data.find(self.tag_opener, pos)  # 寻找下一个标签开始
