@@ -70,13 +70,17 @@ class BBCode(UserDict, ABC):
     def text(self) -> str:
         return self.box["text"]
 
+    def set_text(self, text: str):
+        self.box["text"] = text
+
     @property
     def head(self) -> str:
         return (
             "["
             + (
-                (f"{self.tag}={self.main} " if self.main else self.tag)
-                + " ".join(f"{k}={v}" for k, v in self.items() if k in self.keys_ and k not in self.tags)
+                (f"{self.tag}={self.main}" if self.main else self.tag)
+                + " "
+                + " ".join(f"{k}={v}" for k, v in self.items() if v and k in self.keys_ and k not in self.tags)
             ).rstrip(" ")
             + "]"
         )
@@ -177,6 +181,16 @@ class Url(BBCode):
         return self["url"]
 
 
+@_register_bbcode
+class Img(BBCode):
+    tags = {"img"}
+    keys_ = {"width", "height"}
+
+    @property
+    def url(self) -> str:
+        return self.text
+
+
 @dataclass
 class MessageSegment(BaseMessageSegment["Message"]):
     data: Box
@@ -192,6 +206,9 @@ class MessageSegment(BaseMessageSegment["Message"]):
 
     def get_text(self) -> str:
         return self.data["text"]
+
+    def set_text(self, text: str):
+        self.data["text"] = text
 
     @override
     def is_text(self) -> bool:
@@ -229,6 +246,16 @@ class MessageSegment(BaseMessageSegment["Message"]):
     @classmethod
     def emoji(cls, text: str) -> Self:
         return cls.build(text, [Emoji])
+
+    @classmethod
+    def img(
+        cls, url: str, *, width: Optional[Union[str, int]] = None, height: Optional[Union[str, int]] = None
+    ) -> Self:
+        return cls.build(url, [Img], {"width": width, "height": height})
+
+    @classmethod
+    def md(cls, text: str) -> Self:
+        return cls.build(text, [Markdown])
 
     @classmethod
     def build(cls, text: str, tags: list[type[B]], extra: Optional[dict[str, str]] = None) -> Self:
@@ -275,7 +302,7 @@ class MessageSegment(BaseMessageSegment["Message"]):
 
     def decode(self) -> str:
         _ = deque([self.data["text"]])
-        for tag in self.data["tags"]:
+        for tag in self.data["tags"][::-1]:
             _.appendleft(tag.head)
             _.append(tag.tail)
         return "".join(_)
