@@ -7,6 +7,7 @@ from pydantic import TypeAdapter
 from .message import Message
 from .model import (
     Ack,
+    AddFriendRequestRet,
     ClientConfig,
     ConverseInfo,
     FileInfo,
@@ -108,8 +109,12 @@ class API(BaseBot, ABC):
     async def addBotUser(self, *, appId: str, groupId: str):
         return await self.call_api("openapi.integration.addBotUser", appId=appId, groupId=groupId)
 
-    async def addRequest(self, *, to: str, message: Optional[str] = None):
-        return await self.call_api("friend.request.add", to=to, message=message)
+    async def addRequest(self, *, to: str, message: Optional[str] = None) -> AddFriendRequestRet:
+        """发送好友申请.不存在的id也能发送成功.不符合格式的id会报错.
+        {'name': 'CastError', 'message': 'Cast to ObjectId failed for value "6638722a7c24cb48982fb4111" (type string) at path "to" for model "FriendRequest"', 'code': 500}"""
+        return TypeAdapter(AddFriendRequestRet).validate_python(
+            await self.call_api("friend.request.add", to=to, message=message)
+        )
 
     async def allRelated(self):
         return await self.call_api("friend.request.allRelated")
@@ -138,6 +143,7 @@ class API(BaseBot, ABC):
         )
 
     async def denyRequest(self, *, requestId: str):
+        """拒绝好友请求"""
         return await self.call_api("friend.request.deny", requestId=requestId)
 
     async def getUserInfo(self, *, userId: str) -> UserInfo:
@@ -190,6 +196,7 @@ class API(BaseBot, ABC):
         return await self.call_api("plugin.registry.list")
 
     async def removeFriend(self, *, friendUserId: str):
+        """删除好友"""
         return await self.call_api("friend.removeFriend", friendUserId=friendUserId)
 
     async def resolveToken(self, *, token: str) -> TokenInfo:
@@ -197,9 +204,11 @@ class API(BaseBot, ABC):
         return TypeAdapter(TokenInfo).validate_python(await self.call_api("user.resolveToken", token=token))
 
     async def acceptRequest(self, *, requestId: str):
+        """接受好友请求"""
         return await self.call_api("friend.request.accept", requestId=requestId)
 
     async def cancelRequest(self, *, requestId: str):
+        """撤销申请好友请求. 填不存在的requestId会报错, 不符合格式的也会报错"""
         return await self.call_api("friend.request.cancel", requestId=requestId)
 
     async def checkIsFriend(self, *, targetId: str):
@@ -253,6 +262,7 @@ class API(BaseBot, ABC):
         return await self.call_api("group.getPermissions", groupId=groupId)
 
     async def modifyPassword(self, *, newPassword: str, oldPassword: str):
+        """修改密码(好像没啥用)"""
         return await self.call_api("user.modifyPassword", newPassword=newPassword, oldPassword=oldPassword)
 
     async def removeConverse(self, *, converseId: str):
@@ -319,8 +329,11 @@ class API(BaseBot, ABC):
     async def updateUserExtra(self, *, fieldName: str, fieldValue: Any):
         return await self.call_api("user.updateUserExtra", fieldName=fieldName, fieldValue=fieldValue)
 
-    async def updateUserField(self, *, fieldName: str, fieldValue: Any):
-        return await self.call_api("user.updateUserField", fieldName=fieldName, fieldValue=fieldValue)
+    async def updateUserField(self, *, fieldName: str, fieldValue: Any) -> UserInfo:
+        """更改用户信息"""
+        return TypeAdapter(UserInfo).validate_python(
+            await self.call_api("user.updateUserField", fieldName=fieldName, fieldValue=fieldValue)
+        )
 
     async def createDMConverse(self, *, memberIds: list[str]):
         return await self.call_api("chat.converse.createDMConverse", memberIds=memberIds)
@@ -414,6 +427,7 @@ class API(BaseBot, ABC):
         return await self.call_api("group.getGroupBasicInfo", groupId=groupId)
 
     async def setFriendNickname(self, *, nickname: str, targetId: str):
+        """更改好友昵称"""
         return await self.call_api("friend.setFriendNickname", nickname=nickname, targetId=targetId)
 
     async def updateGroupConfig(self, *, groupId: str, configName: str, configValue: Any):
@@ -484,8 +498,11 @@ class API(BaseBot, ABC):
     async def getGroupLobbyConverseId(self, *, groupId: str):
         return await self.call_api("group.getGroupLobbyConverseId", groupId=groupId)
 
-    async def searchUserWithUniqueName(self, *, uniqueName: str):
-        return await self.call_api("user.searchUserWithUniqueName", uniqueName=uniqueName)
+    async def searchUserWithUniqueName(self, *, uniqueName: str) -> Optional[UserInfo]:
+        """根据唯一名搜索用户"""
+        return TypeAdapter(Optional[UserInfo]).validate_python(
+            await self.call_api("user.searchUserWithUniqueName", uniqueName=uniqueName)
+        )
 
     async def fetchConverseLastMessages(self, *, converseIds: list[str]) -> list[LastMessages]:
         """获取多个会话的最后一条消息"""

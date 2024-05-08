@@ -8,6 +8,8 @@ def gencode(flag):
     apis = data.items()
     apis = sorted(apis, key=lambda x: len(x[0]))
     for name, arr in apis:
+        if name.startswith("plugin:"):
+            continue
         if name.startswith("~"):
             continue
         strict = "!" in name[1:] or "|" in name

@@ -393,6 +393,7 @@ class Message(BaseMessage[MessageSegment]):
         """注册文本类型"""
         return _register_text(bbcode)
 
+    @override
     def __contains__(  # pyright: ignore[reportIncompatibleMethodOverride]
         self, value: Union[MessageSegment, str, type[B]]
     ) -> bool:

@@ -16,7 +16,7 @@ from .bot import Bot
 from .config import BotInfo, Config
 from .const import ADAPTER_NAME
 from .event import EVENT_CLASSES, Event
-from .exception import ActionFailed, DisconnectException
+from .exception import DisconnectException, get_error
 from .message import Message
 from .util import log, retry
 
@@ -168,9 +168,19 @@ class Adapter(BaseAdapter):
     @staticmethod
     def _handle_http_api(resp: Response, data: dict):
         if resp.status_code != 200:
-            raise ActionFailed(message=f'{data.get("name", "unknown")}:{data.get("message")}', code=resp.status_code)
+            name = data.get("name")
+            code = data.get("code")
+            message = data.get("message")
+            error = get_error(data.get("name"))
+            name = name or "unknown"
+            raise error(name=name, message=f"{name}:{message}", code=code)
 
     @staticmethod
     def _handle_socketio_api(data: dict):
         if not data.get("result", True):
-            raise ActionFailed(message=f'{data.get("name", "unknown")}:{data.get("message")}', code=data.get("code"))
+            name = data.get("name")
+            code = data.get("code")
+            message = data.get("message")
+            error = get_error(data.get("name"))
+            name = name or "unknown"
+            raise error(name=name, message=f"{name}:{message}", code=code)

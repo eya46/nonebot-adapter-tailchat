@@ -1,4 +1,5 @@
 from base64 import urlsafe_b64decode
+from functools import wraps
 from hashlib import md5
 from json import loads
 from time import time
@@ -22,6 +23,16 @@ from .model import (
 
 if TYPE_CHECKING:
     from .adapter import Adapter
+
+
+def _with_update_info(func):
+    @wraps(func)
+    async def wrapper(self: "Bot", *args, **kwargs):
+        _ = await func(self, *args, **kwargs)
+        await self.update_info(self.base_info.jwt)
+        return _
+
+    return wrapper
 
 
 class Bot(API):
@@ -112,3 +123,13 @@ class Bot(API):
             self.base_info.jwt = data.jwt
             return
         raise ValueError("必须提供jwt或appId和appSecret")
+
+    @_with_update_info
+    async def updateNickname(self, nickname: str):
+        """更新昵称，机器人重登后就失效了"""
+        return await self.updateUserField(fieldName="nickname", fieldValue=nickname)
+
+    @_with_update_info
+    async def updateAvatar(self, avatar: str):
+        """更新头像，机器人重登后就失效了"""
+        return await self.updateUserField(fieldName="avatar", fieldValue=avatar)

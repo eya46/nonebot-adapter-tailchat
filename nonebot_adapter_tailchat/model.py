@@ -143,14 +143,6 @@ class Ack(RawModel):
     lastMessageId: str
 
 
-class BaseUserInfo(RawModel):
-    _id: str
-    nickname: str
-    email: str
-
-    avatar: Optional[str] = None
-
-
 class UserInfo(BaseUserInfo):
     temporary: bool  # 临时用户
     type: str
@@ -158,7 +150,7 @@ class UserInfo(BaseUserInfo):
     banned: bool
     createdAt: datetime
 
-    discriminator: Optional[str] = None
+    discriminator: Optional[str] = None  # eya46#1145 -> nickname#discriminator
 
 
 class Whoami(RawModel):
@@ -254,3 +246,10 @@ class GroupInfo(RawModel):
     config: Optional[dict] = None
     description: Optional[int] = None
     avatar: Optional[int] = None
+
+
+class AddFriendRequestRet(RawModel):
+    id: str = Field(alias="_id")  # requestId
+    from_: str = Field(alias="from")
+    to: str = Field(alias="to")
+    v: int = Field(alias="__v")

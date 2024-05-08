@@ -190,8 +190,7 @@ addBotUser:
   - ''
 addRequest:
   - friend.request.add
-  - - null
-    - null
+  - AddFriendRequestRet
   - message:
       - message
       - Optional[str]
@@ -199,7 +198,7 @@ addRequest:
     to:
       - to
       - str
-  - ''
+  - "发送好友申请(message好像没用, 请求处理界面看不到message).不存在的id也能发送成功.不符合格式的id会报错."
 allRelated:
   - friend.request.allRelated
   - - null
@@ -270,7 +269,7 @@ denyRequest:
   - requestId:
       - requestId
       - str
-  - ''
+  - '拒绝好友请求'
 getUserInfo:
   - user.getUserInfo
   - UserInfo
@@ -370,7 +369,7 @@ removeFriend:
   - friendUserId:
       - friendUserId
       - str
-  - ''
+  - '删除好友'
 resolveToken:
   - user.resolveToken
   - TokenInfo
@@ -385,7 +384,7 @@ acceptRequest:
   - requestId:
       - requestId
       - str
-  - ''
+  - '接受好友请求'
 cancelRequest:
   - friend.request.cancel
   - - null
@@ -393,7 +392,7 @@ cancelRequest:
   - requestId:
       - requestId
       - str
-  - ''
+  - '撤销申请好友请求. 填不存在的requestId会报错, 不符合格式的也会报错'
 checkIsFriend:
   - friend.checkIsFriend
   - - null
@@ -539,7 +538,7 @@ modifyPassword:
     oldPassword:
       - oldPassword
       - str
-  - ''
+  - '修改密码(好像没啥用)'
 removeConverse:
   - user.dmlist.removeConverse
   - - null
@@ -699,15 +698,14 @@ updateUserExtra:
   - ''
 updateUserField:
   - user.updateUserField
-  - - null
-    - null
+  - UserInfo
   - fieldName:
       - fieldName
       - str
     fieldValue:
       - fieldValue
       - Any
-  - ''
+  - '更改用户信息'
 createDMConverse:
   - chat.converse.createDMConverse
   - - null
@@ -883,14 +881,14 @@ getGroupBasicInfo:
 setFriendNickname:
   - friend.setFriendNickname
   - - null
-    - null
+    - bool
   - nickname:
       - nickname
       - str
     targetId:
       - targetId
       - str
-  - ''
+  - '更改好友昵称'
 updateGroupConfig:
   - group.updateGroupConfig
   - - null
@@ -1043,12 +1041,11 @@ getGroupLobbyConverseId:
   - ''
 searchUserWithUniqueName:
   - user.searchUserWithUniqueName
-  - - null
-    - null
+  - Optional[UserInfo]
   - uniqueName:
       - uniqueName
       - str
-  - ''
+  - 根据唯一名搜索用户
 fetchConverseLastMessages:
   - chat.message.fetchConverseLastMessages
   - list[LastMessages]
