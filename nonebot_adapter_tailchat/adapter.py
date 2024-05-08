@@ -15,8 +15,8 @@ from yarl import URL
 from .bot import Bot
 from .config import BotInfo, Config
 from .const import ADAPTER_NAME, Undefined
-from .event import EVENT_CLASSES, Event
-from .exception import DisconnectException, get_error
+from .event import get_event
+from .exception import ConnectionException, DisconnectException, get_error
 from .message import Message
 from .util import log, retry
 
@@ -83,9 +83,7 @@ class Adapter(BaseAdapter):
         await gather(*self.tasks, return_exceptions=True)
 
     async def _handle_bot(self, bot_info: BotInfo):
-        first = True
         connected = False
-        added = False
 
         async def _wait():  # 确保断连后打断wait
             nonlocal connected
@@ -104,26 +102,22 @@ class Adapter(BaseAdapter):
         while True:
             try:
                 await wait_for(bot.login(bot.base_info.jwt), self.adapter_config.time_out)
-                if first:
-                    await wait_for(self._connect_bot(bot, first), self.adapter_config.time_out)
-                    first = False
+                await wait_for(self._connect_bot(bot), self.adapter_config.time_out)
                 await bot.update_info(bot.base_info.jwt)
-                if not added:
-                    self._bot_connect(bot)
-                    added = True
+                self._bot_connect(bot)
                 connected = True
                 await gather(bot.sio.wait(), _wait())
             except DisconnectException:
                 log.warning(f"Bot {escape_tag(str(bot))} socketio connection closed")
             except AsyncTimeoutError:
                 log.warning(f"Bot {escape_tag(str(bot))} connection timeout")
+            except ConnectionException as e:
+                log.error(f"Error when chat.converse.findAndJoinRoom: {repr(e)}")
             except Exception as e:
                 log.error(f"Error when _handle_bot: {repr(e)}")
                 print_exc()
             connected = False
-            if added:
-                self._bot_disconnect(bot)
-                added = False
+            self._bot_disconnect(bot)
             log.debug(f"Bot {escape_tag(str(bot))} will reconnect in {self.adapter_config.reconnect_interval} seconds")
             await sleep(self.adapter_config.reconnect_interval)
 
@@ -140,22 +134,25 @@ class Adapter(BaseAdapter):
             log.trace(f"Error when bot_disconnect: {repr(e)}")
 
     @staticmethod
-    async def _connect_bot(bot: Bot, first: bool = True):
-        if first:
-            log.debug(f"try to connect bot {escape_tag(str(bot))}")
+    async def _connect_bot(bot: Bot):
+        log.debug(f"try to connect bot {escape_tag(str(bot))}")
+        try:
             await bot.connect()
-        else:
-            log.info(f"try to reconnect bot {escape_tag(str(bot))}")
-        log.success(f"<y>Bot {escape_tag(str(bot))}</y> connected")
-        await bot.sio.emit("chat.converse.findAndJoinRoom")
+        except Exception as e:
+            log.trace(f"Error when bot.connect: {repr(e)}")
+        try:
+            await bot.sio.emit("chat.converse.findAndJoinRoom")
+            log.success(f"<y>Bot {escape_tag(str(bot))}</y> connected")
+        except Exception:
+            raise ConnectionException(f"Bot {str(bot)} join room fail")
 
     @staticmethod
     async def _handle_event(bot: Bot, event: str, data: dict, _: Optional[any] = None):
-        model = EVENT_CLASSES.get(event)
+        model = get_event(event)
         log.trace(f"Event: {event}, MatchModel: {model}, Data: {data}")
-        data["event_name"] = event
-        data["self_id"] = bot.self_id
-        await bot.handle_event((model or Event).model_validate(data))
+        data["event_name"] = data.get("event_name", event)
+        data["self_id"] = data.get("self_id", bot.self_id)
+        await bot.handle_event(model.model_validate(data))
 
     @staticmethod
     def _loads(data: ContentTypes) -> Any:

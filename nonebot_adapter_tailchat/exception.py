@@ -32,9 +32,15 @@ class ActionFailed(BaseActionFailed, TailchatAdapterException):
         return f"ActionFailed(name={self.name!r}, code={self.code!r}, message={self.message!r})"
 
 
-class DisconnectException(TailchatAdapterException):
-    def __init__(self):
-        super().__init__()
+class DisconnectException(TailchatAdapterException): ...
+
+
+class ConnectionException(TailchatAdapterException):
+    def __init__(self, message: str):
+        self.message = message
+
+    def __repr__(self) -> str:
+        return f"ConnectionException(message={self.message!r})"
 
 
 class Error(ActionFailed):

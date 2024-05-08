@@ -9,21 +9,21 @@ from .message import Message
 from .model import (
     Ack,
     AddFriendRequestRet,
+    BaseGroupInfo,
     ClientConfig,
     ConverseInfo,
     FileInfo,
+    GroupAndPanelIds,
     GroupInfo,
     Health,
     InviteCodeInfo,
     LastMessages,
     MessageRet,
     Panel,
+    TemporaryUserInfo,
     TokenInfo,
     UserInfo,
     Whoami,
-    GroupAndPanelIds,
-    BaseGroupInfo,
-    TemporaryUserInfo,
 )
 
 
@@ -115,6 +115,7 @@ class API(BaseBot, ABC):
         return await self.call_api("group.quitGroup", groupId=groupId)
 
     async def updateAck(self, *, converseId: str, lastMessageId: str):
+        """标记已读消息(应该)"""
         return await self.call_api("chat.ack.update", converseId=converseId, lastMessageId=lastMessageId)
 
     async def addBotUser(self, *, appId: str, groupId: str):
@@ -283,6 +284,7 @@ class API(BaseBot, ABC):
         return await self.call_api("user.modifyPassword", newPassword=newPassword, oldPassword=oldPassword)
 
     async def removeConverse(self, *, converseId: str):
+        """删除会话\n{"modifiedCount":1}"""
         return await self.call_api("user.dmlist.removeConverse", converseId=converseId)
 
     async def removeReaction(self, *, emoji: str, messageId: str):
@@ -352,8 +354,11 @@ class API(BaseBot, ABC):
             await self.call_api("user.updateUserField", fieldName=fieldName, fieldValue=fieldValue)
         )
 
-    async def createDMConverse(self, *, memberIds: list[str]):
-        return await self.call_api("chat.converse.createDMConverse", memberIds=memberIds)
+    async def createDMConverse(self, *, memberIds: list[str]) -> ConverseInfo:
+        """创建会话"""
+        return TypeAdapter(ConverseInfo).validate_python(
+            await self.call_api("chat.converse.createDMConverse", memberIds=memberIds)
+        )
 
     async def createGroupPanel(
         self,

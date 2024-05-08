@@ -12,7 +12,7 @@ async def add_group_handle(bot: Bot, cmd: Message = CommandArg()):
     arg = cmd.extract_plain_text().strip()
     code_info = await bot.findInviteByCode(code=arg)
     if code_info is None:
-        await add_group.finish(f"No such invite code")
+        await add_group.finish("No such invite code")
     if await bot.isMember(groupId=code_info.groupId):
         await add_group.finish(f"Already in group {code_info.groupId}")
     await bot.applyInvite(code=arg)

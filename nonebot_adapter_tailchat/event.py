@@ -1,18 +1,23 @@
 from abc import ABC, abstractmethod
-from typing import Literal, Optional, TypeVar, get_args
+from typing import TYPE_CHECKING, Literal, Optional, TypeVar, get_args
 
 from nonebot.adapters import Event as BaseEvent
 from nonebot.compat import model_dump
 from pydantic import Field
+from pydantic_core import PydanticUndefined
 from typing_extensions import override
 
 from .message import Message
 from .model import MemberInfo, MessageMeta, Panel, Payload, Reaction, Replay, datetime
 
+if TYPE_CHECKING:
+    from .bot import Bot
 
-class Event(BaseEvent):
+
+class Event(BaseEvent, ABC):
     event_name: str
-    event_type: str = Field(alias="event_name")
+    event_type: str
+
     self_id: str
 
     @override
@@ -34,7 +39,7 @@ class Event(BaseEvent):
     def get_user_id(self) -> str:
         raise ValueError("Event has no context!")
 
-    def get_message(self) -> "Message":
+    def get_message(self) -> Message:
         raise ValueError("Event has no message!")
 
     @override
@@ -49,12 +54,22 @@ class Event(BaseEvent):
         return self.self_id == self.get_user_id()
 
 
+class UnknownEvent(Event):
+    event_type: Literal["unknown"] = "unknown"
+
+
 EVENT_CLASSES: dict[str, type[Event]] = {}
 
 E = TypeVar("E", bound=Event)
 
 
+def get_event(event_name: str) -> type[Event]:
+    return EVENT_CLASSES.get(event_name, UnknownEvent)
+
+
 def register_event_class(event_class: type[E]) -> type[E]:
+    if event_class.model_fields["event_type"].default == PydanticUndefined:
+        raise ValueError(f"Event class {event_class} must have a field `event_type`")
     try:
         event_name = getattr(event_class, "event_name", get_args(event_class.__annotations__["event_name"])[0])
     except Exception as e:
@@ -65,15 +80,34 @@ def register_event_class(event_class: type[E]) -> type[E]:
     return event_class
 
 
+class NoticeEvent(Event):
+    event_type: Literal["notice"] = "notice"
+
+
 @register_event_class
-class MessageDeleteEvent(Event):
-    event_name: Literal["notify:chat.message.delete"] = "notify:chat.message.delete"
+class DMConverseUpdateEvent(NoticeEvent):
+    """创建私信会话时的事件"""
+
+    event_name: Literal["notify:chat.converse.updateDMConverse"]
+
+    id: str = Field(alias="_id")  # 应该是converseId
+    type_: str = Field(alias="type")
+    members: list[str]
+    createdAt: datetime
+    updatedAt: datetime
+
+    v: int = Field(alias="__v")
+
+
+@register_event_class
+class MessageDeleteEvent(NoticeEvent):
+    event_name: Literal["notify:chat.message.delete"]
 
     converseId: str
     messageId: str
 
 
-class GroupInfoEvent(Event):
+class GroupInfoEvent(NoticeEvent):
     id: str = Field(alias="_id")
     name: str
     owner: str
@@ -83,7 +117,8 @@ class GroupInfoEvent(Event):
     fallbackPermissions: list[str]
     createdAt: datetime
     updatedAt: datetime
-    __v: int
+
+    v: int = Field(alias="__v")
 
     config: Optional[dict] = None
     description: Optional[int] = None
@@ -95,7 +130,7 @@ class GroupInfoUpdateEvent(GroupInfoEvent):
     event_name: Literal["notify:group.updateInfo"]
 
 
-class ReactionEvent(Event):
+class ReactionEvent(NoticeEvent):
     converseId: str
     messageId: str
     reaction: Reaction
@@ -152,6 +187,7 @@ class DefaultMessageEvent(MessageEvent):
     meta: Optional[MessageMeta] = Field(default=None)
 
     content: Message
+    raw_content: str = Field(alias="content")
     reactions: list[Reaction]
     createdAt: datetime
     updatedAt: datetime
@@ -189,7 +225,19 @@ class DefaultMessageEvent(MessageEvent):
         return not not self.groupId
 
 
+@register_event_class
+class MessageAddEvent(DefaultMessageEvent):
+    event_name: Literal["notify:chat.message.add"]
+
+
+@register_event_class
+class MessageUpdateEvent(DefaultMessageEvent):
+    event_name: Literal["notify:chat.message.update"]
+
+
 class AtEvent(Event):
+    event_type: Literal["message"] = "message"
+
     type: str
 
     v: int = Field(alias="__v")
@@ -237,11 +285,28 @@ class AtMessageEvent(AtEvent, MessageEvent):
         )
 
 
-@register_event_class
-class MessageAddEvent(DefaultMessageEvent):
-    event_name: Literal["notify:chat.message.add"]
+class RequestEvent(Event):
+    event_type: Literal["request"] = "request"
 
 
 @register_event_class
-class MessageUpdateEvent(DefaultMessageEvent):
-    event_name: Literal["notify:chat.message.update"]
+class FriendRequestAddEvent(RequestEvent):
+    event_name: Literal["notify:friend.request.add"]
+
+    id: str = Field(alias="_id")
+    from_: str = Field(alias="from")
+    to: str
+    v: int = Field(alias="__v")
+
+    async def accept(self, bot: "Bot"):
+        return await bot.acceptRequest(requestId=self.id)
+
+    async def deny(self, bot: "Bot"):
+        return await bot.denyRequest(requestId=self.id)
+
+
+@register_event_class
+class FriendRequestRemoveEvent(RequestEvent):
+    event_name: Literal["notify:friend.request.remove"]
+
+    requestId: str

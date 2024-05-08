@@ -174,7 +174,7 @@ updateAck:
     lastMessageId:
       - lastMessageId
       - str
-  - ''
+  - '标记已读消息(应该)'
 addBotUser:
   - openapi.integration.addBotUser
   - - null
@@ -538,11 +538,11 @@ modifyPassword:
 removeConverse:
   - user.dmlist.removeConverse
   - - null
-    - null
+    - dict
   - converseId:
       - converseId
       - str
-  - ''
+  - '删除会话\n{"modifiedCount":1}'
 removeReaction:
   - chat.message.removeReaction
   - - null
@@ -704,12 +704,11 @@ updateUserField:
   - '更改用户信息'
 createDMConverse:
   - chat.converse.createDMConverse
-  - - null
-    - null
+  - ConverseInfo
   - memberIds:
       - memberIds
       - list[str]
-  - ''
+  - '创建会话'
 createGroupPanel:
   - group.createGroupPanel
   - - null

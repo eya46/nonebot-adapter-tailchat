@@ -1,10 +1,10 @@
 from datetime import datetime as raw_datetime
 from typing import Annotated, Optional
 
-from pydantic import BaseModel, BeforeValidator, ByteSize, ConfigDict, Field
+from pydantic import BaseModel, BeforeValidator, ByteSize, ConfigDict, Field, RootModel
 
 from .config import BotInfo
-from .message import Message
+from .message import Message, MessageSegment
 from .util import unpack
 
 datetime = Annotated[
@@ -41,8 +41,20 @@ class Replay(RawModel):
     author: str
 
 
+class Emoji(RootModel[str]):
+    @property
+    def name(self):
+        return self.root[1:-1]
+
+    def to_seg(self) -> MessageSegment:
+        return MessageSegment.emoji(self.name)
+
+    def __str__(self):
+        return self.root
+
+
 class Reaction(RawModel):
-    name: str
+    name: Emoji
     author: str
     id: Optional[str] = Field(default=None, alias="_id")
 
@@ -124,7 +136,8 @@ class MessageRet(RawModel):
     reactions: list[Reaction]
     createdAt: datetime
     updatedAt: datetime
-    __v: int
+
+    v: int = Field(alias="__v")
 
     groupId: Optional[str] = None
     meta: Optional[MessageMeta] = None
@@ -172,7 +185,8 @@ class ConverseInfo(RawModel):
     members: list[str]
     createdAt: datetime
     updatedAt: datetime
-    __v: int
+
+    v: int = Field(alias="__v")
 
 
 class LastMessages(RawModel):
@@ -233,7 +247,8 @@ class InviteCodeInfo(RawModel):
     usage: int
     createdAt: datetime
     updatedAt: datetime
-    __v: int
+
+    v: int = Field(alias="__v")
 
 
 class BaseGroupInfo(RawModel):
@@ -253,7 +268,8 @@ class GroupInfo(RawModel):
     fallbackPermissions: list[str]
     createdAt: datetime
     updatedAt: datetime
-    __v: int
+
+    v: int = Field(alias="__v")
 
     config: Optional[dict] = None
     description: Optional[int] = None
