@@ -44,17 +44,16 @@ getFile:
 ackInbox:
   - chat.inbox.ack
   - - null
-    - null
+    - bool
   - inboxItemIds:
       - inboxItemIds
       - list[str]
-  - ''
+  - '标记消息为已读'
 allInbox:
   - chat.inbox.all
-  - - null
-    - null
+  - Message
   - { }
-  - ''
+  - '获取全部收件箱内的消息'
 isMember:
   - group.isMember
   - - null
@@ -144,8 +143,7 @@ deleteApp:
   - ''
 loginUser:
   - user.login
-  - - null
-    - null
+  - TokenInfo
   - email:
       - email
       - Optional[str]
@@ -157,7 +155,7 @@ loginUser:
       - username
       - Optional[str]
       - null
-  - ''
+  - '标准登录API'
 quitGroup:
   - group.quitGroup
   - - null
@@ -355,7 +353,7 @@ isGroupOwner:
   - groupId:
       - groupId
       - str
-  - ''
+  - '是否为创建者'
 listRegistry:
   - plugin.registry.list
   - - null
@@ -396,19 +394,19 @@ cancelRequest:
 checkIsFriend:
   - friend.checkIsFriend
   - - null
-    - null
+    - bool
   - targetId:
       - targetId
       - str
-  - ''
+  - '判断是否为好友'
 deleteMessage:
   - chat.message.deleteMessage
   - - null
-    - null
+    - bool
   - messageId:
       - messageId
       - str
-  - ''
+  - '删除消息'
 gatewayHealth:
   - gateway.health
   - Health
@@ -417,15 +415,14 @@ gatewayHealth:
 getAllFriends:
   - friend.getAllFriends
   - - null
-    - null
+    - list[dict[str, str]]
   - { }
-  - ''
+  - "获取全部好友的ID\n[{'id': '***'}]"
 getUserGroups:
   - group.getUserGroups
-  - - null
-    - null
+  - list[GroupInfo]
   - { }
-  - ''
+  - 获取用户的群组
 recallMessage:
   - chat.message.recallMessage
   - Message
@@ -516,10 +513,9 @@ forgetPassword:
   - ''
 getAllConverse:
   - user.dmlist.getAllConverse
-  - - null
-    - null
+  - list[str]
   - { }
-  - ''
+  - 获取所有会话
 getPermissions:
   - group.getPermissions
   - - null
@@ -741,15 +737,14 @@ createGroupPanel:
   - 创建群组面板
 deleteGroupPanel:
   - group.deleteGroupPanel
-  - - null
-    - null
+  - GroupInfo
   - groupId:
       - groupId
       - str
     panelId:
       - panelId
       - str
-  - ''
+  - '删除群组面板'
 ensureOpenapiBot:
   - user.ensureOpenapiBot
   - - null
@@ -869,15 +864,14 @@ deleteGroupMember:
     memberId:
       - memberId
       - str
-  - ''
+  - '删除群成员'
 getGroupBasicInfo:
   - group.getGroupBasicInfo
-  - - null
-    - null
+  - BaseGroupInfo
   - groupId:
       - groupId
       - str
-  - ''
+  - '获取群基本消息'
 setFriendNickname:
   - friend.setFriendNickname
   - - null
@@ -959,12 +953,11 @@ buildFriendRelation:
   - ''
 createTemporaryUser:
   - user.createTemporaryUser
-  - - null
-    - null
+  - TemporaryUserInfo
   - nickname:
       - nickname
       - str
-  - ''
+  - '创建临时用户'
 updateGroupRoleName:
   - group.updateGroupRoleName
   - GroupInfo
@@ -1034,11 +1027,11 @@ appendDMConverseMembers:
 getGroupLobbyConverseId:
   - group.getGroupLobbyConverseId
   - - null
-    - null
+    - str
   - groupId:
       - groupId
       - str
-  - ''
+  - '不知道啥作用, 但是返回的是converseId'
 searchUserWithUniqueName:
   - user.searchUserWithUniqueName
   - Optional[UserInfo]
@@ -1055,10 +1048,9 @@ fetchConverseLastMessages:
   - 获取多个会话的最后一条消息
 getJoinedGroupAndPanelIds:
   - group.getJoinedGroupAndPanelIds
-  - - null
-    - null
+  - GroupAndPanelIds
   - { }
-  - ''
+  - '获取加入的群组和面板ID'
 updateGroupRolePermission:
   - group.updateGroupRolePermission
   - GroupInfo

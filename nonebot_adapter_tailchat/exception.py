@@ -37,6 +37,10 @@ class DisconnectException(TailchatAdapterException):
         super().__init__()
 
 
+class Error(ActionFailed):
+    """通用错误"""
+
+
 class DataNotFoundError(ActionFailed):
     """找不到~"""
 

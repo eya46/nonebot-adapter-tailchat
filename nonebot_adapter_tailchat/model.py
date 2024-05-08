@@ -109,6 +109,11 @@ class TokenInfo(RawModel):
     createdAt: datetime
     token: str
 
+    discriminator: Optional[str] = None
+
+
+TemporaryUserInfo = TokenInfo
+
 
 class MessageRet(RawModel):
     _id: str
@@ -231,6 +236,13 @@ class InviteCodeInfo(RawModel):
     __v: int
 
 
+class BaseGroupInfo(RawModel):
+    name: str
+    owner: str
+    description: str
+    memberCount: int
+
+
 class GroupInfo(RawModel):
     _id: str
     name: str
@@ -253,3 +265,9 @@ class AddFriendRequestRet(RawModel):
     from_: str = Field(alias="from")
     to: str = Field(alias="to")
     v: int = Field(alias="__v")
+
+
+class GroupAndPanelIds(RawModel):
+    groupIds: list[str]
+    textPanelIds: list[str]
+    subscribeFeaturePanelIds: list[str]

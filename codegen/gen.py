@@ -50,6 +50,8 @@ def gencode(flag):
         for k, v in kv.items():
             kvs.append(f"{v[0]}={k}")
             if len(v) > 2:
+                if v[2] is None:
+                    v[2] = "Undefined"
                 kwargs.append(f"{k}: {v[1]} = {v[2]}")
             else:
                 kwargs.append(f"{k}: {v[1]}")

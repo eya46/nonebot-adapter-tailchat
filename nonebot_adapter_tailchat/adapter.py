@@ -14,7 +14,7 @@ from yarl import URL
 
 from .bot import Bot
 from .config import BotInfo, Config
-from .const import ADAPTER_NAME
+from .const import ADAPTER_NAME, Undefined
 from .event import EVENT_CLASSES, Event
 from .exception import DisconnectException, get_error
 from .message import Message
@@ -52,14 +52,14 @@ class Adapter(BaseAdapter):
                 Request(
                     "POST",
                     str((URL(bot.url) / "api" if use_api else URL(bot.url)) / api),
-                    json=data,
+                    json={key: value for key, value in data.items() if value != Undefined},
                     headers={"X-Token": bot.base_info.jwt or ""},
                 )
             )
             data = self._loads(resp.content)
             self._handle_http_api(resp, data)
         else:
-            data = await bot.sio.call(api, data)
+            data = await bot.sio.call(api, {key: value for key, value in data.items() if value != Undefined})
             self._handle_socketio_api(data)
         return data.get("data")
 
