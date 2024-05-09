@@ -170,7 +170,7 @@ class Adapter(BaseAdapter):
             message = data.get("message")
             error = get_error(data.get("name"))
             name = name or "unknown"
-            raise error(name=name, message=f"{name}:{message}", code=code)
+            raise error(name=name, message=message, code=code)
 
     @staticmethod
     def _handle_socketio_api(data: dict):
@@ -180,4 +180,4 @@ class Adapter(BaseAdapter):
             message = data.get("message")
             error = get_error(data.get("name"))
             name = name or "unknown"
-            raise error(name=name, message=f"{name}:{message}", code=code)
+            raise error(name=name, message=message, code=code)
