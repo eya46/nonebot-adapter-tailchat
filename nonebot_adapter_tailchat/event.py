@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Literal, Optional, TypeVar, get_args
+from typing import TYPE_CHECKING, Literal, Optional, TypeVar, Union, get_args
 
 from nonebot.adapters import Event as BaseEvent
 from nonebot.compat import model_dump
@@ -8,7 +8,18 @@ from pydantic_core import PydanticUndefined
 from typing_extensions import override
 
 from .message import Message
-from .model import MemberInfo, MessageMeta, Panel, Payload, Reaction, Replay, datetime
+from .model import (
+    Announcement,
+    ConverseType,
+    GroupInfo,
+    MessageMeta,
+    ObjectId,
+    Payload,
+    Reaction,
+    Replay,
+    StaticAnnouncement,
+    datetime,
+)
 
 if TYPE_CHECKING:
     from .bot import Bot
@@ -18,7 +29,7 @@ class Event(BaseEvent, ABC):
     event_name: str
     event_type: str
 
-    self_id: str
+    self_id: ObjectId
 
     @override
     def get_type(self) -> str:
@@ -33,117 +44,38 @@ class Event(BaseEvent, ABC):
         return str(model_dump(self))
 
     @override
-    def get_session_id(self) -> str:
-        raise ValueError("Event has no context!")
-
-    def get_user_id(self) -> str:
-        raise ValueError("Event has no context!")
-
-    def get_message(self) -> Message:
-        raise ValueError("Event has no message!")
-
-    @override
     def is_tome(self) -> bool:
-        return not self.is_self() and self._is_tome()
+        return not self.is_self() and self._is_tome
 
-    @staticmethod
-    def _is_tome() -> bool:
+    @property
+    @abstractmethod
+    def _is_tome(self) -> bool:
         return True
 
     def is_self(self) -> bool:
         return self.self_id == self.get_user_id()
 
 
-class UnknownEvent(Event):
-    event_type: Literal["unknown"] = "unknown"
-
-
-EVENT_CLASSES: dict[str, type[Event]] = {}
-
-E = TypeVar("E", bound=Event)
-
-
-def get_event(event_name: str) -> type[Event]:
-    return EVENT_CLASSES.get(event_name, UnknownEvent)
-
-
-def register_event_class(event_class: type[E]) -> type[E]:
-    if event_class.model_fields["event_type"].default == PydanticUndefined:
-        raise ValueError(f"Event class {event_class} must have a field `event_type`")
-    try:
-        event_name = getattr(event_class, "event_name", get_args(event_class.__annotations__["event_name"])[0])
-    except Exception as e:
-        raise ValueError(
-            f"Event class {event_class} must have a default value or Literal[str] type annotation for `event_name`"
-        ) from e  # event_name 必须 有默认值 或 Literal[str] 类型注解
-    EVENT_CLASSES[event_name] = event_class
-    return event_class
-
-
-class NoticeEvent(Event):
+class NoticeEvent(Event, ABC):
     event_type: Literal["notice"] = "notice"
 
+    def get_message(self) -> Message:
+        raise ValueError("Event has no message!")
 
-@register_event_class
-class DMConverseUpdateEvent(NoticeEvent):
-    """创建私信会话时的事件"""
-
-    event_name: Literal["notify:chat.converse.updateDMConverse"]
-
-    id: str = Field(alias="_id")  # 应该是converseId
-    type_: str = Field(alias="type")
-    members: list[str]
-    createdAt: datetime
-    updatedAt: datetime
-
-    v: int = Field(alias="__v")
+    def get_session_id(self) -> str:
+        raise ValueError("Event has no context!")
 
 
-@register_event_class
-class MessageDeleteEvent(NoticeEvent):
-    event_name: Literal["notify:chat.message.delete"]
+class RequestEvent(Event, ABC):
+    event_type: Literal["request"] = "request"
 
-    converseId: str
-    messageId: str
+    @override
+    def get_session_id(self) -> str:
+        raise ValueError("Event has no context!")
 
-
-class GroupInfoEvent(NoticeEvent):
-    id: str = Field(alias="_id")
-    name: str
-    owner: str
-    members: list[MemberInfo]
-    panels: list[Panel]
-    roles: list[str]
-    fallbackPermissions: list[str]
-    createdAt: datetime
-    updatedAt: datetime
-
-    v: int = Field(alias="__v")
-
-    config: Optional[dict] = None
-    description: Optional[int] = None
-    avatar: Optional[int] = None
-
-
-@register_event_class
-class GroupInfoUpdateEvent(GroupInfoEvent):
-    event_name: Literal["notify:group.updateInfo"]
-
-
-class ReactionEvent(NoticeEvent):
-    converseId: str
-    messageId: str
-    reaction: Reaction
-
-
-@register_event_class
-class ReactionAddEvent(ReactionEvent):
-    event_name: Literal["notify:chat.message.addReaction"]
-
-
-@register_event_class
-class ReactionRemoveEvent(ReactionEvent):
-    event_name: Literal["notify:chat.message.addReaction"]
+    @override
+    def get_message(self) -> Message:
+        raise ValueError("Event has no context!")
 
 
 class MessageEvent(Event, ABC):
@@ -169,6 +101,181 @@ class MessageEvent(Event, ABC):
     def get_group_id(self) -> Optional[str]:
         raise NotImplementedError
 
+    def get_session_id(self) -> str:
+        return f"{self.get_group_id()}:{self.get_converse_id()}" if self.is_group() else self.get_converse_id()
+
+
+class UnknownEvent(Event):
+    event_type: Literal["unknown"] = "unknown"
+
+    @property
+    def _is_tome(self) -> bool:
+        return False
+
+    def get_user_id(self) -> str:
+        raise ValueError("Unknown event has no context!")
+
+    def get_session_id(self) -> str:
+        raise ValueError("Unknown event has no context!")
+
+    def get_message(self) -> "Message":
+        if hasattr(self, "content"):
+            return Message(self.content)
+        raise ValueError("Unknown event has no message content")
+
+
+EVENT_CLASSES: dict[str, type[Event]] = {}
+
+E = TypeVar("E", bound=Event)
+
+
+def get_event(event_name: str) -> type[Event]:
+    return EVENT_CLASSES.get(event_name, UnknownEvent)
+
+
+def register_event_class(event_class: type[E]) -> type[E]:
+    if event_class.model_fields["event_type"].default == PydanticUndefined:
+        raise ValueError(f"Event class {event_class} must have a field `event_type`")
+    try:
+        event_name = getattr(event_class, "event_name", get_args(event_class.__annotations__["event_name"])[0])
+    except Exception as e:
+        raise ValueError(
+            f"Event class {event_class} must have a default value or Literal[str] type annotation for `event_name`"
+        ) from e  # event_name 必须 有默认值 或 Literal[str] 类型注解
+    EVENT_CLASSES[event_name] = event_class
+    return event_class
+
+
+@register_event_class
+class ClientConfigUpdateEvent(NoticeEvent):
+    event_name: Literal["notify:config.updateClientConfig"]
+
+    serverName: str
+    serverEntryImage: str
+    announcement: Union[StaticAnnouncement, Literal[False]]
+
+    @property
+    def _is_tome(self) -> bool:
+        return True
+
+    def get_user_id(self) -> str:
+        return "000000000000000000000000"
+
+
+@register_event_class
+class DMConverseUpdateEvent(NoticeEvent):
+    """创建私信会话时的事件"""
+
+    event_name: Literal["notify:chat.converse.updateDMConverse"]
+
+    id: ObjectId = Field(alias="_id")  # 应该是converseId
+    type: ConverseType  # DM, Multi
+    members: list[ObjectId]
+    createdAt: datetime
+    updatedAt: datetime
+
+    v: int = Field(alias="__v")
+
+    @property
+    def _is_tome(self) -> bool:
+        # TODO: 判断是否是自己
+        return False
+
+    def get_user_id(self) -> str:
+        raise ValueError("Event has no context!")
+
+
+@register_event_class
+class MessageDeleteEvent(NoticeEvent):
+    event_name: Literal["notify:chat.message.delete"]
+
+    converseId: ObjectId
+    messageId: ObjectId
+
+    @property
+    def _is_tome(self) -> bool:
+        # TODO: 提供信息过少
+        return False
+
+    def get_user_id(self) -> str:
+        # TODO: 提供信息过少
+        raise ValueError("Event has no context!")
+
+
+class GroupInfoEvent(NoticeEvent, ABC):
+    @property
+    def _is_tome(self) -> bool:
+        # TODO: 不好判断
+        return False
+
+
+@register_event_class
+class AddGroupEvent(GroupInfoEvent, GroupInfo):
+    """机器人加群事件"""
+
+    event_name: Literal["notify:group.add"]
+
+    @property
+    def _is_tome(self) -> bool:
+        return True
+
+    def get_user_id(self) -> str:
+        return self.self_id
+
+
+@register_event_class
+class RemoveGroupEvent(GroupInfoEvent):
+    """机器人退群事件"""
+
+    event_name: Literal["notify:group.remove"]
+
+    groupId: str
+
+    @property
+    def _is_tome(self) -> bool:
+        return True
+
+    def get_user_id(self) -> str:
+        return self.self_id
+
+
+@register_event_class
+class GroupInfoUpdateEvent(GroupInfoEvent, GroupInfo):
+    """群信息更新/用户加群事件"""
+
+    event_name: Literal["notify:group.updateInfo"]
+
+    def get_user_id(self) -> str:
+        # TODO: ...
+        raise ValueError("Event has no context!")
+
+
+class ReactionEvent(NoticeEvent):
+    converseId: ObjectId
+    messageId: ObjectId
+    reaction: Reaction
+
+    def get_user_id(self) -> str:
+        return self.reaction.author
+
+    @property
+    def _is_tome(self) -> bool:
+        # TODO: ...
+        return False
+
+    def get_session_id(self) -> str:
+        return f"{self.converseId}:{self.messageId}:{self.reaction.author}"
+
+
+@register_event_class
+class ReactionAddEvent(ReactionEvent):
+    event_name: Literal["notify:chat.message.addReaction"]
+
+
+@register_event_class
+class ReactionRemoveEvent(ReactionEvent):
+    event_name: Literal["notify:chat.message.removeReaction"]
+
 
 class DefaultMessageEvent(MessageEvent):
     def get_message_id(self) -> str:
@@ -180,10 +287,10 @@ class DefaultMessageEvent(MessageEvent):
     def get_group_id(self) -> Optional[str]:
         return self.groupId
 
-    id: str = Field(alias="_id")
-    author: str
+    id: ObjectId = Field(alias="_id")
+    author: ObjectId
     hasRecall: bool
-    converseId: str
+    converseId: ObjectId
     meta: Optional[MessageMeta] = Field(default=None)
 
     content: Message
@@ -205,10 +312,6 @@ class DefaultMessageEvent(MessageEvent):
     @override
     def get_user_id(self) -> str:
         return self.author
-
-    @override
-    def get_session_id(self) -> str:
-        return self.converseId
 
     def _is_tome(self) -> bool:
         return not self.is_group() or (self.meta and self.self_id in self.meta.mentions)
@@ -232,10 +335,12 @@ class MessageAddEvent(DefaultMessageEvent):
 
 @register_event_class
 class MessageUpdateEvent(DefaultMessageEvent):
+    """消息更新事件(撤回消息)"""
+
     event_name: Literal["notify:chat.message.update"]
 
 
-class AtEvent(Event):
+class AtEvent(Event, ABC):
     event_type: Literal["message"] = "message"
 
     type: str
@@ -247,9 +352,9 @@ class AtEvent(Event):
 class AtMessageEvent(AtEvent, MessageEvent):
     event_name: Literal["notify:chat.inbox.append"]
 
-    id: str = Field(alias="_id")
-    userId: str
-    payload: Payload
+    id: ObjectId = Field(alias="_id")
+    userId: ObjectId
+    payload: Union[Payload, Announcement]
     readed: bool
     createdAt: datetime
     updatedAt: datetime
@@ -285,17 +390,27 @@ class AtMessageEvent(AtEvent, MessageEvent):
         )
 
 
-class RequestEvent(Event):
-    event_type: Literal["request"] = "request"
+@register_event_class
+class AtMessageUpdateEvent(AtEvent, NoticeEvent):
+    """At 消息更新事件"""
+
+    event_name: Literal["notify:chat.inbox.updated"]
+
+    @property
+    def _is_tome(self) -> bool:
+        return True
+
+    def get_user_id(self) -> str:
+        raise ValueError("Event has no context!")
 
 
 @register_event_class
 class FriendRequestAddEvent(RequestEvent):
     event_name: Literal["notify:friend.request.add"]
 
-    id: str = Field(alias="_id")
-    from_: str = Field(alias="from")
-    to: str
+    id: ObjectId = Field(alias="_id")
+    from_: ObjectId = Field(alias="from")
+    to: ObjectId
     v: int = Field(alias="__v")
 
     async def accept(self, bot: "Bot"):
@@ -304,9 +419,24 @@ class FriendRequestAddEvent(RequestEvent):
     async def deny(self, bot: "Bot"):
         return await bot.denyRequest(requestId=self.id)
 
+    @property
+    def _is_tome(self) -> bool:
+        return True
+
+    def get_user_id(self) -> str:
+        return self.from_
+
 
 @register_event_class
 class FriendRequestRemoveEvent(RequestEvent):
     event_name: Literal["notify:friend.request.remove"]
 
-    requestId: str
+    requestId: ObjectId
+
+    @property
+    def _is_tome(self) -> bool:
+        return True
+
+    def get_user_id(self) -> str:
+        # TODO: 提供信息过少
+        raise ValueError("Event has no context!")
