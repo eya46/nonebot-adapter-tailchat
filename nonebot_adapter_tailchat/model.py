@@ -1,5 +1,5 @@
 from datetime import datetime as raw_datetime
-from typing import Annotated, Optional
+from typing import Annotated, Literal, Optional
 
 from pydantic import BaseModel, BeforeValidator, ByteSize, ConfigDict, Field, RootModel
 
@@ -10,6 +10,13 @@ from .util import unpack
 datetime = Annotated[
     raw_datetime,
     BeforeValidator(unpack),
+]
+
+ObjectId = Annotated[str, Field(min_length=24, max_length=24)]
+ConverseType = Literal[
+    "DM",  # 私信
+    "Multi",  # 多人
+    "Group",  # 群组
 ]
 
 
@@ -30,9 +37,9 @@ class Panel(RawModel):
     type: int
     fallbackPermissions: list[str]
 
-    parentId: Optional[int] = None
-    pluginPanelName: Optional[int] = None
-    provider: Optional[int] = None
+    parentId: Optional[str] = None
+    pluginPanelName: Optional[str] = None
+    provider: Optional[str] = None
 
 
 class Replay(RawModel):
@@ -73,6 +80,17 @@ class Payload(RawModel):
     messagePlainContent: Message
 
     groupId: Optional[str] = None
+
+
+class Announcement(RawModel):
+    title: str
+    content: str  # md富文本
+
+
+class StaticAnnouncement(RawModel):
+    id: datetime
+    text: str
+    link: str
 
 
 class ClientInfo(BotInfo):
@@ -188,6 +206,8 @@ class ConverseInfo(RawModel):
 
     v: int = Field(alias="__v")
 
+    name: Optional[str]
+
 
 class LastMessages(RawModel):
     converseId: str
@@ -259,7 +279,7 @@ class BaseGroupInfo(RawModel):
 
 
 class GroupInfo(RawModel):
-    _id: str
+    id: str = Field(alias="_id")
     name: str
     owner: str
     members: list[MemberInfo]
@@ -272,8 +292,8 @@ class GroupInfo(RawModel):
     v: int = Field(alias="__v")
 
     config: Optional[dict] = None
-    description: Optional[int] = None
-    avatar: Optional[int] = None
+    description: Optional[str] = None
+    avatar: Optional[str] = None
 
 
 class AddFriendRequestRet(RawModel):
@@ -287,3 +307,10 @@ class GroupAndPanelIds(RawModel):
     groupIds: list[str]
     textPanelIds: list[str]
     subscribeFeaturePanelIds: list[str]
+
+
+class FindAndJoinRoomRet(RawModel):
+    dmConverseIds: list[ObjectId]
+    groupIds: list[ObjectId]
+    textPanelIds: list[ObjectId]
+    subscribeFeaturePanelIds: list[ObjectId]

@@ -13,6 +13,7 @@ from .model import (
     ClientConfig,
     ConverseInfo,
     FileInfo,
+    FindAndJoinRoomRet,
     GroupAndPanelIds,
     GroupInfo,
     Health,
@@ -53,7 +54,7 @@ class API(BaseBot, ABC):
         return await self.call_api("chat.inbox.ack", inboxItemIds=inboxItemIds)
 
     async def allInbox(self) -> Message:
-        """获取全部收件箱内的消息"""
+        """获取用户收件箱中所有内容"""
         return TypeAdapter(Message).validate_python(await self.call_api("chat.inbox.all"))
 
     async def isMember(self, *, groupId: str):
@@ -115,7 +116,7 @@ class API(BaseBot, ABC):
         return await self.call_api("group.quitGroup", groupId=groupId)
 
     async def updateAck(self, *, converseId: str, lastMessageId: str):
-        """标记已读消息(应该)"""
+        """更新用户在会话中已读的最后一条消息"""
         return await self.call_api("chat.ack.update", converseId=converseId, lastMessageId=lastMessageId)
 
     async def addBotUser(self, *, appId: str, groupId: str):
@@ -131,6 +132,7 @@ class API(BaseBot, ABC):
         return await self.call_api("friend.request.allRelated")
 
     async def clearInbox(self):
+        """清空所有的收件箱内容"""
         return await self.call_api("chat.inbox.clear")
 
     async def setAppInfo(self, *, appId: str, fieldName: str, fieldValue: str):
@@ -208,7 +210,7 @@ class API(BaseBot, ABC):
         return await self.call_api("plugin.registry.list")
 
     async def removeFriend(self, *, friendUserId: str):
-        """删除好友"""
+        """移除单项好友关系"""
         return await self.call_api("friend.removeFriend", friendUserId=friendUserId)
 
     async def resolveToken(self, *, token: str) -> TokenInfo:
@@ -224,7 +226,7 @@ class API(BaseBot, ABC):
         return await self.call_api("friend.request.cancel", requestId=requestId)
 
     async def checkIsFriend(self, *, targetId: str):
-        """判断是否为好友"""
+        """检查对方是否为自己好友"""
         return await self.call_api("friend.checkIsFriend", targetId=targetId)
 
     async def deleteMessage(self, *, messageId: str):
@@ -321,8 +323,9 @@ class API(BaseBot, ABC):
     async def ensurePluginBot(self, *, botId: str, nickname: str, avatar: Optional[str] = Undefined):
         return await self.call_api("user.ensurePluginBot", botId=botId, avatar=avatar, nickname=nickname)
 
-    async def findAndJoinRoom(self):
-        return await self.call_api("chat.converse.findAndJoinRoom")
+    async def findAndJoinRoom(self) -> FindAndJoinRoomRet:
+        """查找用户相关的所有会话并加入房间"""
+        return TypeAdapter(FindAndJoinRoomRet).validate_python(await self.call_api("chat.converse.findAndJoinRoom"))
 
     async def getUserInfoList(self, *, userIds: list[str]) -> list[UserInfo]:
         """获取多个用户信息"""
@@ -456,7 +459,7 @@ class API(BaseBot, ABC):
         )
 
     async def setFriendNickname(self, *, nickname: str, targetId: str):
-        """更改好友昵称"""
+        """设置好友昵称"""
         return await self.call_api("friend.setFriendNickname", nickname=nickname, targetId=targetId)
 
     async def updateGroupConfig(self, *, groupId: str, configName: str, configValue: Any):
@@ -496,6 +499,7 @@ class API(BaseBot, ABC):
         return await self.call_api("user.verifyEmailWithOTP", emailOTP=emailOTP)
 
     async def buildFriendRelation(self, *, user1: str, user2: str):
+        """构建好友关系"""
         return await self.call_api("friend.buildFriendRelation", user1=user1, user2=user2)
 
     async def createTemporaryUser(self, *, nickname: str) -> TemporaryUserInfo:
@@ -531,6 +535,7 @@ class API(BaseBot, ABC):
         return await self.call_api("group.removeGroupMemberRoles", roles=roles, groupId=groupId, memberIds=memberIds)
 
     async def appendDMConverseMembers(self, *, converseId: str, memberIds: list[str]):
+        """在多人会话中添加成员"""
         return await self.call_api("chat.converse.appendDMConverseMembers", memberIds=memberIds, converseId=converseId)
 
     async def getGroupLobbyConverseId(self, *, groupId: str):

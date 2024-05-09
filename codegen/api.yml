@@ -53,7 +53,7 @@ allInbox:
   - chat.inbox.all
   - Message
   - { }
-  - '获取全部收件箱内的消息'
+  - 获取用户收件箱中所有内容
 isMember:
   - group.isMember
   - - null
@@ -174,7 +174,7 @@ updateAck:
     lastMessageId:
       - lastMessageId
       - str
-  - '标记已读消息(应该)'
+  - 更新用户在会话中已读的最后一条消息
 addBotUser:
   - openapi.integration.addBotUser
   - - null
@@ -206,9 +206,9 @@ allRelated:
 clearInbox:
   - chat.inbox.clear
   - - null
-    - null
+    - bool
   - { }
-  - ''
+  - 清空所有的收件箱内容
 setAppInfo:
   - openapi.app.setAppInfo
   - - null
@@ -367,7 +367,7 @@ removeFriend:
   - friendUserId:
       - friendUserId
       - str
-  - '删除好友'
+  - 移除单项好友关系
 resolveToken:
   - user.resolveToken
   - TokenInfo
@@ -398,7 +398,7 @@ checkIsFriend:
   - targetId:
       - targetId
       - str
-  - '判断是否为好友'
+  - 检查对方是否为自己好友
 deleteMessage:
   - chat.message.deleteMessage
   - - null
@@ -628,10 +628,9 @@ ensurePluginBot:
   - ''
 findAndJoinRoom:
   - chat.converse.findAndJoinRoom
-  - - null
-    - null
+  - FindAndJoinRoomRet
   - { }
-  - ''
+  - 查找用户相关的所有会话并加入房间
 getUserInfoList:
   - user.getUserInfoList
   - list[UserInfo]
@@ -881,7 +880,7 @@ setFriendNickname:
     targetId:
       - targetId
       - str
-  - '更改好友昵称'
+  - 设置好友昵称
 updateGroupConfig:
   - group.updateGroupConfig
   - - null
@@ -949,7 +948,7 @@ buildFriendRelation:
     user2:
       - user2
       - str
-  - ''
+  - 构建好友关系
 createTemporaryUser:
   - user.createTemporaryUser
   - TemporaryUserInfo
@@ -1022,7 +1021,7 @@ appendDMConverseMembers:
     memberIds:
       - memberIds
       - list[str]
-  - ''
+  - 在多人会话中添加成员
 getGroupLobbyConverseId:
   - group.getGroupLobbyConverseId
   - - null
@@ -1483,7 +1482,7 @@ upload!~:
     userIds:
       - userIds
       - list[str]
-  - ''
+  - append 的多用户版本
 ~getGroupInfo:
   - group.getGroupInfo
   - - null
