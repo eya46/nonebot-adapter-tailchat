@@ -278,13 +278,19 @@ class BaseGroupInfo(RawModel):
     memberCount: int
 
 
+class Role(RawModel):
+    id: str = Field(alias="_id")
+    name: str
+    permissions: list[str]
+
+
 class GroupInfo(RawModel):
     id: str = Field(alias="_id")
     name: str
     owner: str
     members: list[MemberInfo]
     panels: list[Panel]
-    roles: list[str]
+    roles: list[Role]
     fallbackPermissions: list[str]
     createdAt: datetime
     updatedAt: datetime
