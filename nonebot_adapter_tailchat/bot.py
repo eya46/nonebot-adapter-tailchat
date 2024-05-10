@@ -13,13 +13,14 @@ from typing_extensions import override
 from .api import API
 from .config import BotInfo
 from .event import Event, MessageEvent
-from .message import Message, MessageSegment
+from .message import At, Message, MessageSegment
 from .model import (
     BaseBotInfo,
     JwtPayload,
     MessageRet,
     TokenInfo,
 )
+from .util import log
 
 if TYPE_CHECKING:
     from .adapter import Adapter
@@ -46,7 +47,31 @@ class Bot(API):
             transports=["websocket"],
         )
 
+    async def _check_is_to_me(self, event: Event):
+        try:
+            message: Message = event.get_message()
+            # at
+            seg: MessageSegment = message[0]
+            if seg.type == At.__name__.lower():
+                if seg.get_tag(At).main == event.self_id:
+                    event._isToMe = True
+                    message.pop(0)
+                return
+            # nickname
+            if seg.type == "text":
+                text = seg.get_text().strip()
+                for i in self.config.nickname:
+                    if text.startswith(i):
+                        event._isToMe = True
+                        if len(text) == len(i):
+                            message.pop(0)
+                        else:
+                            seg.data["text"] = text[len(i) :]
+        except Exception as e:
+            log.debug(f"Bot._check_is_to_me error: {e}")
+
     async def handle_event(self, event: Event) -> None:
+        await self._check_is_to_me(event)
         await handle_event(self, event)
 
     @staticmethod

@@ -31,6 +31,8 @@ class Event(BaseEvent, ABC):
 
     self_id: ObjectId
 
+    _isToMe: bool = False
+
     @override
     def get_type(self) -> str:
         return self.event_type
@@ -45,7 +47,7 @@ class Event(BaseEvent, ABC):
 
     @override
     def is_tome(self) -> bool:
-        return not self.is_self() and self._is_tome
+        return not self.is_self() and (self._isToMe or self._is_tome)
 
     @property
     @abstractmethod
@@ -120,7 +122,9 @@ class UnknownEvent(Event):
 
     def get_message(self) -> "Message":
         if hasattr(self, "content"):
-            return Message(self.content)
+            if not isinstance(self.content, Message):
+                setattr(self, "content", Message(self.content))
+            return self.content
         raise ValueError("Unknown event has no message content")
 
 
@@ -229,7 +233,7 @@ class RemoveGroupEvent(GroupInfoEvent):
 
     event_name: Literal["notify:group.remove"]
 
-    groupId: str
+    groupId: ObjectId
 
     @property
     def _is_tome(self) -> bool:
@@ -278,15 +282,6 @@ class ReactionRemoveEvent(ReactionEvent):
 
 
 class DefaultMessageEvent(MessageEvent):
-    def get_message_id(self) -> str:
-        return self.id
-
-    def get_converse_id(self) -> str:
-        return self.converseId
-
-    def get_group_id(self) -> Optional[str]:
-        return self.groupId
-
     id: ObjectId = Field(alias="_id")
     author: ObjectId
     hasRecall: bool
@@ -299,7 +294,16 @@ class DefaultMessageEvent(MessageEvent):
     createdAt: datetime
     updatedAt: datetime
 
-    groupId: Optional[str] = Field(default=None)
+    groupId: Optional[ObjectId] = Field(default=None)
+
+    def get_message_id(self) -> str:
+        return self.id
+
+    def get_converse_id(self) -> str:
+        return self.converseId
+
+    def get_group_id(self) -> Optional[str]:
+        return self.groupId
 
     @property
     def replay(self) -> Optional[Replay]:
@@ -314,7 +318,12 @@ class DefaultMessageEvent(MessageEvent):
         return self.author
 
     def _is_tome(self) -> bool:
-        return not self.is_group() or (self.meta and self.self_id in self.meta.mentions)
+        # 私聊/提及/回复
+        return (
+            not self.is_group()
+            or (self.meta and self.self_id in self.meta.mentions)
+            or (self.meta and self.meta.replay and self.self_id == self.meta.replay.author)
+        )
 
     @override
     def get_event_description(self) -> str:
