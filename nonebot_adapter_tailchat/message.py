@@ -16,14 +16,8 @@ from typing_extensions import Self, override
 from .bbcode import Parser
 
 B = TypeVar("B", bound="BBCode")
-TEXTS: set[str] = set()
 BBCODES: dict[str, type[B]] = {}
 RELATION: dict[int, list[B]] = defaultdict(list)
-
-
-def _register_text(bbcode: type[B]) -> type[B]:
-    TEXTS.update(bbcode.tags)
-    return bbcode
 
 
 def _register_bbcode(code: Union[int, type[B]]):
@@ -137,25 +131,21 @@ class Emoji(BBCode):
     tags = {"emoji"}
 
 
-@_register_text
 @_register_bbcode(0)
 class Bold(BBCode):
     tags = {"b"}
 
 
-@_register_text
 @_register_bbcode(0)
 class Italic(BBCode):
     tags = {"i"}
 
 
-@_register_text
 @_register_bbcode(0)
 class Underline(BBCode):
     tags = {"u"}
 
 
-@_register_text
 @_register_bbcode(0)
 class Strikeout(BBCode):
     tags = {"s"}
@@ -217,7 +207,7 @@ class MessageSegment(BaseMessageSegment["Message"]):
 
     @override
     def is_text(self) -> bool:
-        return not any(not (_.tags & TEXTS) for _ in self.data["tags"])
+        return self.type == "text"
 
     @classmethod
     def card(cls, *, text: str, type_: str, data: str) -> Self:
@@ -275,7 +265,17 @@ class MessageSegment(BaseMessageSegment["Message"]):
     def build(cls, text: str, tags: list[type[B]], extra: Optional[dict[str, str]] = None) -> Self:
         if extra is None:
             extra = {}
-        _ = cls("rich" if len(tags) > 0 else "text", {"text": text, "extra": extra, "tags": []})
+        if (length := len(tags)) == 0:
+            type_ = "text"
+        elif length == 1:
+            type_ = tags[0].__name__.lower()
+        else:
+            type_ = "rich"
+
+        _ = cls(
+            type_,
+            {"text": text, "extra": extra, "tags": []},
+        )
         for tag in tags:
             _.data["tags"].append(tag(box=_.data))
         return _
@@ -296,6 +296,12 @@ class MessageSegment(BaseMessageSegment["Message"]):
         """
         if strict and (relations := self.tag_relation()) and any(_.relation not in relations for _ in seg.data["tags"]):
             raise ValueError("Tag relation not match")
+
+        if self.type == "text":
+            self.type = seg.type
+        elif self.type != "rich":
+            self.type = "rich"
+
         self.data["extra"].update(seg.data["extra"])
         for idx, tag in enumerate(seg.data["tags"]):
             seg.data["tags"][idx] = tag.__class__(box=self.data)
@@ -321,7 +327,7 @@ class MessageSegment(BaseMessageSegment["Message"]):
 
     def get_tag(self, bbcode: type[B]) -> Optional[B]:
         for _ in self.data["tags"]:
-            if _ is bbcode:
+            if isinstance(_, bbcode):
                 return _
         return None
 
@@ -387,11 +393,6 @@ class Message(BaseMessage[MessageSegment]):
     def register_bbcode(cls, code: Union[int, type[B]]):
         _register_bbcode(code)
         cls.update_parser()
-
-    @staticmethod
-    def register_text(bbcode: type[B]) -> type[B]:
-        """注册文本类型"""
-        return _register_text(bbcode)
 
     @override
     def __contains__(  # pyright: ignore[reportIncompatibleMethodOverride]
