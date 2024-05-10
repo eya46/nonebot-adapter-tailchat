@@ -75,10 +75,16 @@ async def test_message_extend():
     with pytest.raises(ValueError):
         MessageSegment.text("test", b=True).extend(MessageSegment.md("test"))
 
-    assert (
-        MessageSegment.text("test", b=True).extend(MessageSegment.text("test喵", i=True)).decode()
-        == "[b][i]test[/i][/b]"
-    )
+    message = MessageSegment.text("test")
+    assert message.type == "text"
+    assert message.extend(MessageSegment.text("test", b=True)).type == "bold"
+
+    assert MessageSegment.text("test", b=True, i=True).type == "rich"
+
+    message = MessageSegment.text("test", b=True).extend(MessageSegment.text("test喵", i=True))
+    assert message.decode() == "[b][i]test[/i][/b]"
+    assert message.type == "rich"
+
     assert (
         MessageSegment.text("test喵", i=True).extend(MessageSegment.text("test", b=True)).decode()
         == "[i][b]test喵[/b][/i]"
