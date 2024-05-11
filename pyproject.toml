@@ -1,11 +1,18 @@
 [tool.poetry]
 name = "nonebot-adapter-tailchat"
-version = "0.1.0b6"
+version = "0.1.0b7"
 description = "NoneBot2 Tailchat 适配器 / Tailchat adapter for nonebot2"
 authors = ["eya46 <61458340+eya46@users.noreply.github.com>"]
 license = "Apache-2.0"
 readme = "README.md"
 packages = [{ include = "nonebot_adapter_tailchat" }]
+keywords = ["bot", "tailchat", "nonebot2"]
+repository = "https://github.com/eya46/nonebot-adapter-tailchat"
+
+
+[tool.poetry.urls]
+"Tailchat" = "https://tailchat.msgbyte.com/"
+
 
 [tool.poetry.dependencies]
 python = "^3.9"
