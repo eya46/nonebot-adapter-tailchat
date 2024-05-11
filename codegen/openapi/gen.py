@@ -10,6 +10,9 @@ with open("openapi.json") as f:
 with open("openapi.yaml") as f:
     openapi["paths"].update(safe_load(f)["paths"])
 
+with open("../api.yml", encoding="utf8") as f:
+    exist = safe_load(f)
+
 filters = ["debug"]
 
 
@@ -69,8 +72,6 @@ def get_properties(scheme):
             yield check_func_name(i[0]), i[0], f"Optional[{i[1]}]", None
 
 
-api = {}
-
 a1 = []
 
 for k, v in openapi["paths"].items():
@@ -96,12 +97,21 @@ for k, v in openapi["paths"].items():
         print("!!!重复api", k, name)
         continue
     a1.append(name)
-    # if ":" in name:
-    #     name = "_".join(name.split(":"))
-    # if "." in name:
-    #     name = name.split(".")
-    #     name = name[0] + "".join(i.capitalize() for i in name[1:])
-    api[name] = [k, [None, None], {j[0]: j[1:] for j in schemes}, desc]
+    if ":" in name:
+        # name = "_".join(name.split(":"))
+        continue
+    if "." in name:
+        name = name.split(".")
+        name = name[0] + "".join(i.capitalize() for i in name[1:])
+    flag = False
+    for k_, v_ in exist.items():
+        if k == v_[0]:
+            flag = True
+            kvs = {j[0]: j[1:] for j in schemes}
+            exist[k_] = [k, v_[1] if isinstance(v_[1], str) else tuple(v_[1]), kvs if len(kvs)>len(v_[2]) else v_[2], v_[3]]
+            break
+    if not flag:
+        exist[name] = [k, [None, None], {j[0]: j[1:] for j in schemes}, desc]
     # print(k, desc, *schemes)
 
     # for i in v.keys():
@@ -119,9 +129,17 @@ for k, v in openapi["paths"].items():
     #     else:
     #         print(f"{k}|{i}", k, desc)
 
-
 # print(dumps(api, indent=4, ensure_ascii=True))
-print(safe_dump(api, indent=4, allow_unicode=True))
+# print(exist)
+# print("-" * 64)
+print(
+    safe_dump(
+        dict(sorted(exist.items(), key=lambda x: len(x[0]) if not x[0].startswith("~") else len(x[0]) + 999)),
+        indent=4,
+        allow_unicode=True,
+        sort_keys=False,
+    )
+)
 
 if __name__ == "__main__":
     pass

@@ -1,15 +1,6 @@
 # name开头 ~ 为弃用
 # name结尾 ! 表示用http请求 | 表示用socketio请求 ~ 表示use_api_=False
-~login!:
-  - openapi.bot.login
-  - - null
-    - null
-  - jwt:
-      - jwt
-      - Optional[str]
-      - null
-  - 登录
-ackAll:
+allAck:
   - chat.ack.all
   - list[Ack]
   - { }
@@ -40,7 +31,7 @@ getFile:
   - objectName:
       - objectName
       - str
-  - '获取文件url (但是参数不知道填啥)'
+  - 获取文件url (但是参数不知道填啥)
 ackInbox:
   - chat.inbox.ack
   - - null
@@ -48,10 +39,10 @@ ackInbox:
   - inboxItemIds:
       - inboxItemIds
       - list[str]
-  - '标记消息为已读'
+  - 标记消息为已读
 allInbox:
   - chat.inbox.all
-  - Message
+  - MessageRet
   - { }
   - 获取用户收件箱中所有内容
 isMember:
@@ -61,7 +52,7 @@ isMember:
   - groupId:
       - groupId
       - str
-  - '是否为指定群的成员'
+  - 是否为指定群的成员
 register:
   - user.register
   - - null
@@ -104,6 +95,13 @@ statFile:
       - objectName
       - str
   - ''
+upload!~:
+  - upload
+  - FileInfo
+  - file:
+      - file
+      - bytes
+  - 上传文件
 authToken:
   - openapi.app.authToken
   - - null
@@ -118,7 +116,7 @@ authToken:
     token:
       - token
       - str
-  - '验证token'
+  - 验证token
 createApp:
   - openapi.app.create
   - - null
@@ -155,7 +153,7 @@ loginUser:
       - username
       - Optional[str]
       - null
-  - '标准登录API'
+  - 标准登录API
 quitGroup:
   - group.quitGroup
   - - null
@@ -163,7 +161,7 @@ quitGroup:
   - groupId:
       - groupId
       - str
-  - '退群'
+  - 退群
 updateAck:
   - chat.ack.update
   - - null
@@ -196,7 +194,7 @@ addRequest:
     to:
       - to
       - str
-  - "发送好友申请(message好像没用, 请求处理界面看不到message).不存在的id也能发送成功.不符合格式的id会报错."
+  - 发送好友申请(message好像没用, 请求处理界面看不到message).不存在的id也能发送成功.不符合格式的id会报错.
 allRelated:
   - friend.request.allRelated
   - - null
@@ -249,7 +247,7 @@ applyInvite:
   - code:
       - code
       - str
-  - '通过邀请码加群'
+  - 通过邀请码加群
 createGroup:
   - group.createGroup
   - GroupInfo
@@ -267,7 +265,7 @@ denyRequest:
   - requestId:
       - requestId
       - str
-  - '拒绝好友请求'
+  - 拒绝好友请求
 getUserInfo:
   - user.getUserInfo
   - UserInfo
@@ -353,7 +351,7 @@ isGroupOwner:
   - groupId:
       - groupId
       - str
-  - '是否为创建者'
+  - 是否为创建者
 listRegistry:
   - plugin.registry.list
   - - null
@@ -382,7 +380,7 @@ acceptRequest:
   - requestId:
       - requestId
       - str
-  - '接受好友请求'
+  - 接受好友请求
 cancelRequest:
   - friend.request.cancel
   - - null
@@ -390,7 +388,7 @@ cancelRequest:
   - requestId:
       - requestId
       - str
-  - '撤销申请好友请求. 填不存在的requestId会报错, 不符合格式的也会报错'
+  - 撤销申请好友请求. 填不存在的requestId会报错, 不符合格式的也会报错
 checkIsFriend:
   - friend.checkIsFriend
   - - null
@@ -406,7 +404,7 @@ deleteMessage:
   - messageId:
       - messageId
       - str
-  - '删除消息'
+  - 删除消息
 gatewayHealth:
   - gateway.health
   - Health
@@ -417,7 +415,9 @@ getAllFriends:
   - - null
     - list[dict[str, str]]
   - { }
-  - "获取全部好友的ID\n[{'id': '***'}]"
+  - '获取全部好友的ID
+
+    [{''id'': ''***''}]'
 getUserGroups:
   - group.getUserGroups
   - list[GroupInfo]
@@ -425,7 +425,7 @@ getUserGroups:
   - 获取用户的群组
 recallMessage:
   - chat.message.recallMessage
-  - Message
+  - MessageRet
   - messageId:
       - messageId
       - str
@@ -477,7 +477,7 @@ savePanelData:
   - 保存面板数据
 searchMessage:
   - chat.message.searchMessage
-  - list[Message]
+  - list[MessageRet]
   - converseId:
       - converseId
       - str
@@ -534,7 +534,7 @@ modifyPassword:
     oldPassword:
       - oldPassword
       - str
-  - '修改密码(好像没啥用)'
+  - 修改密码(好像没啥用)
 removeConverse:
   - user.dmlist.removeConverse
   - - null
@@ -542,7 +542,7 @@ removeConverse:
   - converseId:
       - converseId
       - str
-  - '删除会话\n{"modifiedCount":1}'
+  - 删除会话\n{"modifiedCount":1}
 removeReaction:
   - chat.message.removeReaction
   - - null
@@ -700,14 +700,14 @@ updateUserField:
     fieldValue:
       - fieldValue
       - Any
-  - '更改用户信息'
+  - 更改用户信息
 createDMConverse:
   - chat.converse.createDMConverse
   - ConverseInfo
   - memberIds:
       - memberIds
       - list[str]
-  - '创建会话'
+  - 创建会话
 createGroupPanel:
   - group.createGroupPanel
   - - null
@@ -715,23 +715,28 @@ createGroupPanel:
   - groupId:
       - groupId
       - str
-    meta:
-      - meta
-      - dict
     name:
       - name
       - str
-    pluginPanelName:
-      - pluginPanelName
+    type_:
+      - type
+      - int
+    parentId:
+      - parentId
       - Optional[str]
       - null
     provider:
       - provider
       - Optional[str]
       - null
-    type_:
-      - type
-      - int
+    pluginPanelName:
+      - pluginPanelName
+      - Optional[str]
+      - null
+    meta:
+      - meta
+      - Optional[dict]
+      - null
   - 创建群组面板
 deleteGroupPanel:
   - group.deleteGroupPanel
@@ -742,7 +747,7 @@ deleteGroupPanel:
     panelId:
       - panelId
       - str
-  - '删除群组面板'
+  - 删除群组面板
 ensureOpenapiBot:
   - user.ensureOpenapiBot
   - - null
@@ -862,14 +867,14 @@ deleteGroupMember:
     memberId:
       - memberId
       - str
-  - '删除群成员'
+  - 删除群成员
 getGroupBasicInfo:
   - group.getGroupBasicInfo
   - BaseGroupInfo
   - groupId:
       - groupId
       - str
-  - '获取群基本消息'
+  - 获取群基本消息
 setFriendNickname:
   - friend.setFriendNickname
   - - null
@@ -919,16 +924,21 @@ claimTemporaryUser:
   - ''
 fetchNearbyMessage:
   - chat.message.fetchNearbyMessage
-  - list[Message]
-  - converseId:
-      - converseId
-      - str
-    groupId:
+  - list[MessageRet]
+  - groupId:
       - groupId
+      - Optional[str]
+      - null
+    converseId:
+      - converseId
       - str
     messageId:
       - messageId
       - str
+    num:
+      - num
+      - Optional[int]
+      - null
   - 获取指定消息的上下文
 verifyEmailWithOTP:
   - user.verifyEmailWithOTP
@@ -937,7 +947,7 @@ verifyEmailWithOTP:
   - emailOTP:
       - emailOTP
       - str
-  - '验证邮箱'
+  - 验证邮箱
 buildFriendRelation:
   - friend.buildFriendRelation
   - - null
@@ -955,7 +965,7 @@ createTemporaryUser:
   - nickname:
       - nickname
       - str
-  - '创建临时用户'
+  - 创建临时用户
 updateGroupRoleName:
   - group.updateGroupRoleName
   - GroupInfo
@@ -971,10 +981,14 @@ updateGroupRoleName:
   - 更新群用户组名称
 fetchConverseMessage:
   - chat.message.fetchConverseMessage
-  - list[Message]
+  - list[MessageRet]
   - converseId:
       - converseId
       - str
+    startId:
+      - startId
+      - Optional[str]
+      - null
   - 获取会话消息
 getAllGroupInviteCode:
   - group.invite.getAllGroupInviteCode
@@ -1029,7 +1043,7 @@ getGroupLobbyConverseId:
   - groupId:
       - groupId
       - str
-  - '不知道啥作用, 但是返回的是converseId'
+  - 不知道啥作用, 但是返回的是converseId
 searchUserWithUniqueName:
   - user.searchUserWithUniqueName
   - Optional[UserInfo]
@@ -1048,7 +1062,7 @@ getJoinedGroupAndPanelIds:
   - group.getJoinedGroupAndPanelIds
   - GroupAndPanelIds
   - { }
-  - '获取加入的群组和面板ID'
+  - 获取加入的群组和面板ID
 updateGroupRolePermission:
   - group.updateGroupRolePermission
   - GroupInfo
@@ -1354,13 +1368,17 @@ plugin:com.msgbyte.github.subscribe.webhook.callback:
     - null
   - { }
   - ''
-upload!~:
-  - upload
-  - FileInfo
-  - file:
-      - file
-      - bytes
-  - 上传文件
+~login!:
+  - openapi.bot.login
+  - - null
+    - null
+  - appId:
+      - appId
+      - str
+    token:
+      - token
+      - str
+  - 登录
 ~banUser:
   - user.banUser
   - - null

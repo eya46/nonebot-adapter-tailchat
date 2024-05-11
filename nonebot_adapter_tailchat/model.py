@@ -146,7 +146,7 @@ TemporaryUserInfo = TokenInfo
 
 
 class MessageRet(RawModel):
-    _id: str
+    id: str = Field(alias="_id")
     content: str
     author: str
     converseId: str
@@ -198,7 +198,7 @@ class Whoami(RawModel):
 
 
 class ConverseInfo(RawModel):
-    _id: str
+    id: str = Field(alias="_id")
     type: str
     members: list[str]
     createdAt: datetime
@@ -260,7 +260,7 @@ class FileInfo(RawModel):
 
 
 class InviteCodeInfo(RawModel):
-    _id: str
+    id: str = Field(alias="_id")
     code: str
     creator: str
     groupId: str

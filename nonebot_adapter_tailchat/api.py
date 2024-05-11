@@ -5,7 +5,6 @@ from nonebot.adapters import Bot as BaseBot
 from pydantic import TypeAdapter
 
 from .const import Optional, Undefined
-from .message import Message
 from .model import (
     Ack,
     AddFriendRequestRet,
@@ -29,7 +28,7 @@ from .model import (
 
 
 class API(BaseBot, ABC):
-    async def ackAll(self) -> list[Ack]:
+    async def allAck(self) -> list[Ack]:
         """获取所有会话的最后一条消息的ID"""
         return TypeAdapter(list[Ack]).validate_python(await self.call_api("chat.ack.all"))
 
@@ -53,9 +52,9 @@ class API(BaseBot, ABC):
         """标记消息为已读"""
         return await self.call_api("chat.inbox.ack", inboxItemIds=inboxItemIds)
 
-    async def allInbox(self) -> Message:
+    async def allInbox(self) -> MessageRet:
         """获取用户收件箱中所有内容"""
-        return TypeAdapter(Message).validate_python(await self.call_api("chat.inbox.all"))
+        return TypeAdapter(MessageRet).validate_python(await self.call_api("chat.inbox.all"))
 
     async def isMember(self, *, groupId: str):
         """是否为指定群的成员"""
@@ -246,9 +245,9 @@ class API(BaseBot, ABC):
         """获取用户的群组"""
         return TypeAdapter(list[GroupInfo]).validate_python(await self.call_api("group.getUserGroups"))
 
-    async def recallMessage(self, *, messageId: str) -> Message:
+    async def recallMessage(self, *, messageId: str) -> MessageRet:
         """撤回消息, 大于15分钟的消息无法撤回, 会报错"""
-        return TypeAdapter(Message).validate_python(
+        return TypeAdapter(MessageRet).validate_python(
             await self.call_api("chat.message.recallMessage", messageId=messageId)
         )
 
@@ -262,9 +261,11 @@ class API(BaseBot, ABC):
         """保存面板数据"""
         return await self.call_api("group.extra.savePanelData", data=data, name=name, groupId=groupId, panelId=panelId)
 
-    async def searchMessage(self, *, text: str, converseId: str, groupId: Optional[str] = Undefined) -> list[Message]:
+    async def searchMessage(
+        self, *, text: str, converseId: str, groupId: Optional[str] = Undefined
+    ) -> list[MessageRet]:
         """搜索消息"""
-        return TypeAdapter(list[Message]).validate_python(
+        return TypeAdapter(list[MessageRet]).validate_python(
             await self.call_api("chat.message.searchMessage", text=text, groupId=groupId, converseId=converseId)
         )
 
@@ -367,19 +368,21 @@ class API(BaseBot, ABC):
         self,
         *,
         name: str,
-        meta: dict,
         type_: int,
         groupId: str,
+        meta: Optional[dict] = Undefined,
+        parentId: Optional[str] = Undefined,
         provider: Optional[str] = Undefined,
         pluginPanelName: Optional[str] = Undefined,
     ):
         """创建群组面板"""
         return await self.call_api(
             "group.createGroupPanel",
-            meta=meta,
             name=name,
+            meta=meta,
             type=type_,
             groupId=groupId,
+            parentId=parentId,
             provider=provider,
             pluginPanelName=pluginPanelName,
         )
@@ -486,11 +489,13 @@ class API(BaseBot, ABC):
             username=username,
         )
 
-    async def fetchNearbyMessage(self, *, groupId: str, messageId: str, converseId: str) -> list[Message]:
+    async def fetchNearbyMessage(
+        self, *, messageId: str, converseId: str, num: Optional[int] = Undefined, groupId: Optional[str] = Undefined
+    ) -> list[MessageRet]:
         """获取指定消息的上下文"""
-        return TypeAdapter(list[Message]).validate_python(
+        return TypeAdapter(list[MessageRet]).validate_python(
             await self.call_api(
-                "chat.message.fetchNearbyMessage", groupId=groupId, messageId=messageId, converseId=converseId
+                "chat.message.fetchNearbyMessage", num=num, groupId=groupId, messageId=messageId, converseId=converseId
             )
         )
 
@@ -514,10 +519,10 @@ class API(BaseBot, ABC):
             await self.call_api("group.updateGroupRoleName", roleId=roleId, groupId=groupId, roleName=roleName)
         )
 
-    async def fetchConverseMessage(self, *, converseId: str) -> list[Message]:
+    async def fetchConverseMessage(self, *, converseId: str, startId: Optional[str] = Undefined) -> list[MessageRet]:
         """获取会话消息"""
-        return TypeAdapter(list[Message]).validate_python(
-            await self.call_api("chat.message.fetchConverseMessage", converseId=converseId)
+        return TypeAdapter(list[MessageRet]).validate_python(
+            await self.call_api("chat.message.fetchConverseMessage", startId=startId, converseId=converseId)
         )
 
     async def getAllGroupInviteCode(self, *, groupId: str) -> list[InviteCodeInfo]:
