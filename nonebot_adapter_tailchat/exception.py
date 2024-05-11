@@ -29,7 +29,7 @@ class ActionFailed(BaseActionFailed, TailchatAdapterException):
         self.message = message
 
     def __repr__(self) -> str:
-        return f"{self.__name__}(name={self.name!r}, code={self.code!r}, message={self.message!r})"
+        return f"{self.__class__.__name__}(name={self.name!r}, code={self.code!r}, message={self.message!r})"
 
 
 class DisconnectException(TailchatAdapterException): ...
@@ -40,7 +40,7 @@ class ConnectionException(TailchatAdapterException):
         self.message = message
 
     def __repr__(self) -> str:
-        return f"{self.__name__}(message={self.message!r})"
+        return f"{self.__class__.__name__}(message={self.message!r})"
 
 
 class Error(ActionFailed):
