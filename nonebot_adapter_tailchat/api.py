@@ -137,6 +137,12 @@ class API(BaseBot, ABC):
     async def setAppInfo(self, *, appId: str, fieldName: str, fieldValue: str):
         return await self.call_api("openapi.app.setAppInfo", appId=appId, fieldName=fieldName, fieldValue=fieldValue)
 
+    async def getMessage(self, *, messageId: str) -> MessageRet:
+        """获取消息"""
+        return TypeAdapter(MessageRet).validate_python(
+            await self.call_api("chat.message.getMessage", messageId=messageId)
+        )
+
     async def addConverse(self, *, converseId: str):
         return await self.call_api("user.dmlist.addConverse", converseId=converseId)
 

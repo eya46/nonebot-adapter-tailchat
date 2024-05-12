@@ -1,18 +1,19 @@
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Literal, Optional, TypeVar, Union, get_args
+from typing import TYPE_CHECKING, Literal, Optional, TypeVar, Union, cast, get_args
 
 from nonebot.adapters import Event as BaseEvent
 from nonebot.compat import model_dump
 from pydantic import Field
 from pydantic_core import PydanticUndefined
-from typing_extensions import override
+from typing_extensions import Self, override
 
-from .message import Message
+from .message import At, Message, MessageSegment
 from .model import (
     Announcement,
     ConverseType,
     GroupInfo,
     MessageMeta,
+    MessageRet,
     ObjectId,
     Payload,
     Reaction,
@@ -20,6 +21,7 @@ from .model import (
     StaticAnnouncement,
     datetime,
 )
+from .util import log
 
 if TYPE_CHECKING:
     from .bot import Bot
@@ -56,6 +58,34 @@ class Event(BaseEvent, ABC):
 
     def is_self(self) -> bool:
         return self.self_id == self.get_user_id()
+
+    async def _get_message(self, bot: "Bot" = None) -> Message:
+        return self.get_message()
+
+    @classmethod
+    async def build(cls, bot: "Bot", obj: dict) -> Self:
+        event = cls.model_validate(obj)
+        try:
+            message: Message = await event._get_message(bot)
+            # at
+            seg: MessageSegment = message[0]
+            if seg.type == At.__name__.lower():
+                if seg.get_tag(At).main == event.self_id:
+                    event._isToMe = True
+                    message.pop(0)
+            # nickname
+            elif seg.type == "text":
+                text = seg.get_text().strip()
+                for i in bot.config.nickname:
+                    if text.startswith(i):
+                        event._isToMe = True
+                        if len(text) == len(i):
+                            message.pop(0)
+                        else:
+                            seg.data["text"] = text[len(i) :]
+        except Exception as e:
+            log.debug(f"Event.build error: {e}")
+        return event
 
 
 class NoticeEvent(Event, ABC):
@@ -182,8 +212,7 @@ class DMConverseUpdateEvent(NoticeEvent):
 
     @property
     def _is_tome(self) -> bool:
-        # TODO: 判断是否是自己
-        return False
+        return True
 
     def get_user_id(self) -> str:
         raise ValueError("Event has no context!")
@@ -254,31 +283,115 @@ class GroupInfoUpdateEvent(GroupInfoEvent, GroupInfo):
         raise ValueError("Event has no context!")
 
 
-class ReactionEvent(NoticeEvent):
+class DefaultReactionEvent(NoticeEvent):
     converseId: ObjectId
     messageId: ObjectId
     reaction: Reaction
+
+    message: Optional[MessageRet] = None
+    content: Optional[Message] = None
 
     def get_user_id(self) -> str:
         return self.reaction.author
 
     @property
     def _is_tome(self) -> bool:
-        # TODO: ...
+        if self.message:
+            return self.message.author == self.self_id
         return False
 
     def get_session_id(self) -> str:
         return f"{self.converseId}:{self.messageId}:{self.reaction.author}"
 
+    def is_group(self) -> bool:
+        if self.message is None:
+            raise ValueError("Event has no context!")
+        return not not self.message.groupId
+
+    def get_message(self) -> Message:
+        if self.content:
+            return self.content
+        return super().get_message()
+
+    async def _get_message(self, bot: Optional["Bot"] = None) -> Message:
+        if self.content:
+            return self.content
+        if self.message:
+            self.content = Message(self.message.content)
+            return self.content
+        if bot:
+            self.message = await bot.getMessage(messageId=self.messageId)
+            self.content = Message(self.message.content)
+            return self.content
+        raise ValueError("Event has no context!")
+
 
 @register_event_class
-class ReactionAddEvent(ReactionEvent):
+class DefaultReactionAddEvent(DefaultReactionEvent):
     event_name: Literal["notify:chat.message.addReaction"]
 
+    @classmethod
+    async def build(cls, bot: "Bot", obj: dict) -> Self:
+        event = cast(cls, await super().build(bot, obj))
+        if event.message is None:
+            return event
+        if event.is_group():
+            return GroupReactionAddEvent.model_validate(dict(event))
+        return PrivateReactionAddEvent.model_validate(dict(event))
+
+
+class PrivateReactionAddEvent(DefaultReactionAddEvent):
+    message: MessageRet
+    content: Message
+
+    def is_group(self) -> bool:
+        return False
+
+
+class GroupReactionAddEvent(DefaultReactionAddEvent):
+    message: MessageRet
+    content: Message
+
+    def is_group(self) -> bool:
+        return True
+
+    @property
+    def groupId(self) -> ObjectId:
+        return self.message.groupId
+
 
 @register_event_class
-class ReactionRemoveEvent(ReactionEvent):
+class DefaultReactionRemoveEvent(DefaultReactionEvent):
     event_name: Literal["notify:chat.message.removeReaction"]
+
+    @classmethod
+    async def build(cls, bot: "Bot", obj: dict) -> Self:
+        event = cast(cls, await super().build(bot, obj))
+        if event.message is None:
+            return event
+        if event.is_group():
+            return GroupReactionRemoveEvent.model_validate(dict(event))
+        return PrivateReactionRemoveEvent.model_validate(dict(event))
+
+
+class PrivateReactionRemoveEvent(DefaultReactionRemoveEvent):
+    message: MessageRet
+    content: Message
+
+    def is_group(self) -> bool:
+        return False
+
+
+class GroupReactionRemoveEvent(DefaultReactionRemoveEvent):
+    message: MessageRet
+    content: Message
+
+    def is_group(self) -> bool:
+        return True
+
+    @property
+    def groupId(self) -> ObjectId:
+        return self.message.groupId
 
 
 class DefaultMessageEvent(MessageEvent):

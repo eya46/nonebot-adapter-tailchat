@@ -108,7 +108,12 @@ for k, v in openapi["paths"].items():
         if k == v_[0]:
             flag = True
             kvs = {j[0]: j[1:] for j in schemes}
-            exist[k_] = [k, v_[1] if isinstance(v_[1], str) else tuple(v_[1]), kvs if len(kvs)>len(v_[2]) else v_[2], v_[3]]
+            exist[k_] = [
+                k,
+                v_[1] if isinstance(v_[1], str) else tuple(v_[1]),
+                kvs if len(kvs) > len(v_[2]) else v_[2],
+                v_[3],
+            ]
             break
     if not flag:
         exist[name] = [k, [None, None], {j[0]: j[1:] for j in schemes}, desc]

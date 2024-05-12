@@ -9,6 +9,7 @@ from nonebot import escape_tag, get_plugin_config
 from nonebot.adapters import Adapter as BaseAdapter
 from nonebot.drivers import Driver
 from nonebot.internal.driver import ContentTypes, HTTPClientMixin, Request, Response
+from nonebot.message import handle_event
 from typing_extensions import override
 from yarl import URL
 
@@ -152,7 +153,7 @@ class Adapter(BaseAdapter):
         log.trace(f"Event: {event}, MatchModel: {model}, Data: {data}")
         data["event_name"] = data.get("event_name", event)
         data["self_id"] = data.get("self_id", bot.self_id)
-        await bot.handle_event(model.model_validate(data))
+        await handle_event(bot, await model.build(bot, data))
 
     @staticmethod
     def _loads(data: ContentTypes) -> Any:

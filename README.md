@@ -15,6 +15,8 @@
 
 ## 环境要求
 
+- Tailchat >= 1.11.3
+  - api: `getMessage`
 - Python 3.9+
 - NoneBot 2.3.0+
 - pydantic >= 2.0.0
@@ -56,6 +58,7 @@ TAILCHAT_TIME_OUT=5
 [config.py](./nonebot_adapter_tailchat/config.py)
 
 ## 相关项目
+
 - [dcwatson/bbcode](https://github.com/dcwatson/bbcode)
 - [Tailchat](https://github.com/msgbyte/tailchat)
 - [python-socketio](https://github.com/miguelgrinberg/python-socketio)
