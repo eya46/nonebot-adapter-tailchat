@@ -1,7 +1,7 @@
 import pytest
 
 from nonebot_adapter_tailchat import Message, MessageSegment
-from nonebot_adapter_tailchat.message import BBCode, Url
+from nonebot_adapter_tailchat.message import BBCode, Italic, Url
 
 
 @pytest.mark.asyncio()
@@ -110,6 +110,11 @@ async def test_register_bbcode():
 
 @pytest.mark.asyncio()
 async def test_message_func():
-    msg = Message(MessageSegment.url(url="https://example.com"))
+    msg = MessageSegment.url(url="https://example.com")
+    assert Url.tag_in(msg)
+
+    msg = Message([MessageSegment.text("test", i=True), MessageSegment.url(url="https://example.com")])
     assert Url.tag_in(msg)
     assert Url in msg
+    assert Italic.tag_in(msg)
+    assert Italic in msg

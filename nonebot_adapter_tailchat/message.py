@@ -88,7 +88,7 @@ class BBCode(UserDict, ABC):
         if isinstance(msg, MessageSegment):
             return any(isinstance(_, cls) for _ in msg.data["tags"])
 
-        return any(BBCode.tag_in(_) for _ in msg)
+        return any(cls.tag_in(_) for _ in msg)
 
     def __str__(self):
         return self.head + self.text + self.tail
