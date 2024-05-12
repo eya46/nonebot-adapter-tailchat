@@ -8,15 +8,16 @@
 
 ## Tailchat 适配器
 
-![License](https://img.shields.io/github/license/eya46/nonebot-adapter-tailchat)
-![Python](https://img.shields.io/badge/python-3.9+-blue.svg)
-![NoneBot](https://img.shields.io/badge/nonebot-2.3.0+-red.svg)
+[![License](https://img.shields.io/github/license/eya46/nonebot-adapter-tailchat)](https://github.com/eya46/nonebot-adapter-tailchat/blob/master/LICENSE)
+[![Python](https://img.shields.io/badge/python-3.9+-blue.svg)](https://docs.python.org/zh-cn/3.9/library/index.html)
+[![NoneBot](https://img.shields.io/badge/nonebot-2.3.0+-red.svg)](https://nonebot.dev)
+[![Tailchat](https://img.shields.io/badge/Tailchat-1.11.3+-blue.svg)](https://tailchat.msgbyte.com)
 </div>
 
 ## 环境要求
 
 - Tailchat >= 1.11.3
-  - api: `getMessage`
+    - api: `getMessage`
 - Python 3.9+
 - NoneBot 2.3.0+
 - pydantic >= 2.0.0
