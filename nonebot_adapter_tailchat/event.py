@@ -5,7 +5,7 @@ from nonebot.adapters import Event as BaseEvent
 from nonebot.compat import model_dump
 from pydantic import Field
 from pydantic_core import PydanticUndefined
-from typing_extensions import Self, override
+from typing_extensions import Self
 
 from .message import At, Message, MessageSegment
 from .model import (
@@ -35,19 +35,15 @@ class Event(BaseEvent, ABC):
 
     _isToMe: bool = False
 
-    @override
     def get_type(self) -> str:
         return self.event_type
 
-    @override
     def get_event_name(self) -> str:
         return self.event_name
 
-    @override
     def get_event_description(self) -> str:
         return str(model_dump(self))
 
-    @override
     def is_tome(self) -> bool:
         return not self.is_self() and (self._isToMe or self._is_tome)
 
@@ -101,11 +97,9 @@ class NoticeEvent(Event, ABC):
 class RequestEvent(Event, ABC):
     event_type: Literal["request"] = "request"
 
-    @override
     def get_session_id(self) -> str:
         raise ValueError("Event has no context!")
 
-    @override
     def get_message(self) -> Message:
         raise ValueError("Event has no context!")
 
@@ -113,7 +107,6 @@ class RequestEvent(Event, ABC):
 class MessageEvent(Event, ABC):
     event_type: Literal["message"] = "message"
 
-    @override
     def get_plaintext(self) -> str:
         return self.get_message().extract_plain_text()
 
@@ -422,11 +415,9 @@ class DefaultMessageEvent(MessageEvent):
     def replay(self) -> Optional[Replay]:
         return self.meta.replay if self.meta else None
 
-    @override
     def get_message(self) -> Message:
         return self.content
 
-    @override
     def get_user_id(self) -> str:
         return self.author
 
@@ -438,7 +429,6 @@ class DefaultMessageEvent(MessageEvent):
             or (self.meta and self.meta.replay and self.self_id == self.meta.replay.author)
         )
 
-    @override
     def get_event_description(self) -> str:
         return (
             f"Message {self.id} from {self.author}"
@@ -499,11 +489,9 @@ class AtMessageEvent(AtEvent, MessageEvent):
     def _is_tome(self) -> bool:
         return True
 
-    @override
     def get_user_id(self) -> str:
         return self.payload.messageAuthor
 
-    @override
     def get_event_description(self) -> str:
         return (
             f"AtMessage {self.payload.messageId} from {self.payload.messageAuthor}"

@@ -10,7 +10,6 @@ from nonebot.adapters import Adapter as BaseAdapter
 from nonebot.drivers import Driver
 from nonebot.internal.driver import ContentTypes, HTTPClientMixin, Request, Response
 from nonebot.message import handle_event
-from typing_extensions import override
 from yarl import URL
 
 from .bot import Bot
@@ -23,7 +22,6 @@ from .util import log, retry
 
 
 class Adapter(BaseAdapter):
-    @override
     def __init__(self, driver: Driver, **kwargs: Any):
         super().__init__(driver, **kwargs)
         self.adapter_config: Config = get_plugin_config(Config)
@@ -34,11 +32,9 @@ class Adapter(BaseAdapter):
         self.is_http_client_driver = isinstance(self.driver, HTTPClientMixin)
 
     @classmethod
-    @override
     def get_name(cls) -> str:
         return ADAPTER_NAME
 
-    @override
     async def _call_api(self, bot: Bot, api: str, **data: Any) -> Any:
         use_http = data.get("use_http_", bot.base_info.useHttp)  # 使用http
         use_sio = data.get("use_sio_", not use_http)  # 使用socketio

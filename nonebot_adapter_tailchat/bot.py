@@ -7,7 +7,6 @@ from typing import TYPE_CHECKING, Optional, Union
 
 from pydantic import TypeAdapter
 from socketio import AsyncClient as AsyncSocketClient
-from typing_extensions import override
 
 from .api import API
 from .config import BotInfo
@@ -73,7 +72,6 @@ class Bot(API):
         self.base_info.jwt = jwt
         self.self_id = self.info.userId
 
-    @override
     def __init__(self, adapter: "Adapter", self_id: str, base_info: BotInfo):
         super().__init__(adapter, self_id)
         self.url = str(base_info.url)
@@ -81,7 +79,6 @@ class Bot(API):
         self.sio = AsyncSocketClient(serializer="msgpack")
         self.info: Optional[TokenInfo] = None
 
-    @override
     async def send(
         self,
         event: Event,
