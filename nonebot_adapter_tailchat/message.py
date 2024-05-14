@@ -109,6 +109,9 @@ class BBCode(UserDict, ABC):
     def __repr__(self):
         return f"{self.tag}({self.data})" if len(self.data) else f"{self.tag}"
 
+    def __missing__(self, key) -> None:
+        return None
+
 
 @_register_bbcode
 class Markdown(BBCode):
