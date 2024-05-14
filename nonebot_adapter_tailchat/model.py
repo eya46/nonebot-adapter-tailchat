@@ -1,3 +1,4 @@
+from collections import UserDict
 from datetime import datetime as raw_datetime
 from typing import Annotated, Literal, Optional
 
@@ -320,3 +321,14 @@ class FindAndJoinRoomRet(RawModel):
     groupIds: list[ObjectId]
     textPanelIds: list[ObjectId]
     subscribeFeaturePanelIds: list[ObjectId]
+
+
+class BotInfoRet(RawModel):
+    id: ObjectId = Field(alias="_id")
+    email: str
+    nickname: str
+    avatar: str
+
+
+class GroupDataRet(UserDict):
+    data: any

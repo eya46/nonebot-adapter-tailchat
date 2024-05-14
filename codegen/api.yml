@@ -34,8 +34,7 @@ getFile:
   - 获取文件url (但是参数不知道填啥)
 ackInbox:
   - chat.inbox.ack
-  - - null
-    - bool
+  - - bool
   - inboxItemIds:
       - inboxItemIds
       - list[str]
@@ -80,13 +79,13 @@ register:
       - username
       - Optional[str]
       - null
-  - ''
+  - 用户注册
 saveFile:
   - file.save
   - - null
     - null
   - { }
-  - ''
+  - 通过文件流存储到本地
 statFile:
   - file.stat
   - - null
@@ -94,7 +93,7 @@ statFile:
   - objectName:
       - objectName
       - str
-  - ''
+  - 获取客户端的信息
 upload!~:
   - upload
   - FileInfo
@@ -104,8 +103,7 @@ upload!~:
   - 上传文件
 authToken:
   - openapi.app.authToken
-  - - null
-    - bool
+  - - bool
   - appId:
       - appId
       - str
@@ -130,15 +128,14 @@ createApp:
     appName:
       - appName
       - str
-  - ''
+  - 创建一个第三方应用
 deleteApp:
   - openapi.app.delete
-  - - null
-    - null
+  - - bool
   - appId:
       - appId
       - str
-  - ''
+  - 删除开放平台应用
 loginUser:
   - user.login
   - TokenInfo
@@ -183,7 +180,7 @@ addBotUser:
     groupId:
       - groupId
       - str
-  - ''
+  - 在群组中添加机器人用户
 addRequest:
   - friend.request.add
   - AddFriendRequestRet
@@ -197,14 +194,12 @@ addRequest:
   - 发送好友申请(message好像没用, 请求处理界面看不到message).不存在的id也能发送成功.不符合格式的id会报错.
 allRelated:
   - friend.request.allRelated
-  - - null
-    - null
+  - list[AddFriendRequestRet]
   - { }
-  - ''
+  - 所有与自己相关的好友请求, 包括自己发出的和别人发给自己的
 clearInbox:
   - chat.inbox.clear
-  - - null
-    - bool
+  - - bool
   - { }
   - 清空所有的收件箱内容
 setAppInfo:
@@ -216,11 +211,11 @@ setAppInfo:
       - str
     fieldName:
       - fieldName
-      - str
+      - Literal["appName", "appDesc", "appIcon"]
     fieldValue:
       - fieldValue
       - str
-  - ''
+  - 修改应用信息
 getMessage:
   - chat.message.getMessage
   - MessageRet
@@ -235,11 +230,10 @@ addConverse:
   - converseId:
       - converseId
       - str
-  - ''
+  - 加入或创建会话
 addReaction:
   - chat.message.addReaction
-  - - null
-    - bool
+  - - bool
   - emoji:
       - emoji
       - str
@@ -309,7 +303,7 @@ verifyEmail:
   - email:
       - email
       - str
-  - ''
+  - '验证用户邮箱, 会往邮箱发送一个 OTP 作为唯一标识\n需要在注册的时候带上'
 configClient:
   - config.client
   - ClientConfig
@@ -328,8 +322,7 @@ deleteInvite:
   - 删除邀请码
 getGroupData:
   - group.extra.getGroupData
-  - - null
-    - null
+  - - GroupDataRet
   - groupId:
       - groupId
       - str
@@ -339,8 +332,7 @@ getGroupData:
   - ''
 getPanelData:
   - group.extra.getPanelData
-  - - null
-    - dict
+  - - dict
   - groupId:
       - groupId
       - str
@@ -364,7 +356,7 @@ listRegistry:
   - - null
     - null
   - { }
-  - ''
+  - getPluginList
 removeFriend:
   - friend.removeFriend
   - - null
@@ -398,16 +390,14 @@ cancelRequest:
   - 撤销申请好友请求. 填不存在的requestId会报错, 不符合格式的也会报错
 checkIsFriend:
   - friend.checkIsFriend
-  - - null
-    - bool
+  - - bool
   - targetId:
       - targetId
       - str
   - 检查对方是否为自己好友
 deleteMessage:
   - chat.message.deleteMessage
-  - - null
-    - bool
+  - - bool
   - messageId:
       - messageId
       - str
@@ -419,8 +409,7 @@ gatewayHealth:
   - 获取网关健康状态
 getAllFriends:
   - friend.getAllFriends
-  - - null
-    - list[dict[str, str]]
+  - - list[dict[str, str]]
   - { }
   - '获取全部好友的ID
 
@@ -439,8 +428,7 @@ recallMessage:
   - 撤回消息, 大于15分钟的消息无法撤回, 会报错
 resetPassword:
   - user.resetPassword
-  - - null
-    - null
+  - - bool
   - email:
       - email
       - str
@@ -450,11 +438,10 @@ resetPassword:
     password:
       - password
       - str
-  - ''
+  - 重置密码
 saveGroupData:
   - group.extra.saveGroupData
-  - - null
-    - null
+  - - bool
   - data:
       - data
       - str
@@ -467,8 +454,7 @@ saveGroupData:
   - ''
 savePanelData:
   - group.extra.savePanelData
-  - - null
-    - bool
+  - - bool
   - data:
       - data
       - str
@@ -509,7 +495,7 @@ setAppBotInfo:
     fieldValue:
       - fieldValue
       - Any
-  - ''
+  - 设置Bot的设置信息
 forgetPassword:
   - user.forgetPassword
   - - null
@@ -517,20 +503,19 @@ forgetPassword:
   - email:
       - email
       - str
-  - ''
+  - '忘记密码\n流程: 发送一个链接到远程，点开后可以直接重置密码'
 getAllConverse:
   - user.dmlist.getAllConverse
-  - list[str]
+  - - list[str]
   - { }
   - 获取所有会话
 getPermissions:
   - group.getPermissions
-  - - null
-    - null
+  - - list[str]
   - groupId:
       - groupId
       - str
-  - ''
+  - 获取群组成员权限(对外)
 modifyPassword:
   - user.modifyPassword
   - - null
@@ -544,16 +529,14 @@ modifyPassword:
   - 修改密码(好像没啥用)
 removeConverse:
   - user.dmlist.removeConverse
-  - - null
-    - dict
+  - - dict
   - converseId:
       - converseId
       - str
   - 删除会话\n{"modifiedCount":1}
 removeReaction:
   - chat.message.removeReaction
-  - - null
-    - bool
+  - - bool
   - emoji:
       - emoji
       - str
@@ -568,10 +551,10 @@ checkTokenValid:
   - token:
       - token
       - str
-  - ''
+  - 检查授权是否可用
 checkUserOnline:
   - gateway.checkUserOnline
-  - list[bool]
+  - - list[bool]
   - userIds:
       - userIds
       - list[str]
@@ -601,8 +584,7 @@ deleteGroupRole:
   - 删除群用户组
 editGroupInvite:
   - group.invite.editGroupInvite
-  - - null
-    - bool
+  - - bool
   - code:
       - code
       - str
@@ -647,14 +629,12 @@ getUserInfoList:
   - 获取多个用户信息
 getUserSettings:
   - user.getUserSettings
-  - - null
-    - dict
+  - - dict
   - { }
   - 获取用户设置
 muteGroupMember:
   - group.muteGroupMember
-  - - null
-    - bool
+  - - bool
   - groupId:
       - groupId
       - str
@@ -678,11 +658,10 @@ setAppOAuthInfo:
     fieldValue:
       - fieldValue
       - Any
-  - ''
+  - 设置OAuth的设置信息
 setUserSettings:
   - user.setUserSettings
-  - - null
-    - dict
+  - - dict
   - settings:
       - settings
       - dict
@@ -697,7 +676,7 @@ updateUserExtra:
     fieldValue:
       - fieldValue
       - Any
-  - ''
+  - 修改用户额外数据
 updateUserField:
   - user.updateUserField
   - UserInfo
@@ -717,8 +696,7 @@ createDMConverse:
   - 创建会话
 createGroupPanel:
   - group.createGroupPanel
-  - - null
-    - dict
+  - - dict
   - groupId:
       - groupId
       - str
@@ -757,8 +735,7 @@ deleteGroupPanel:
   - 删除群组面板
 ensureOpenapiBot:
   - user.ensureOpenapiBot
-  - - null
-    - null
+  - BotInfoRet
   - avatar:
       - avatar
       - Optional[str]
@@ -769,7 +746,7 @@ ensureOpenapiBot:
     nickname:
       - nickname
       - str
-  - ''
+  - 确保第三方开放平台机器人存在(没有则自动创建)
 findConverseInfo:
   - chat.converse.findConverseInfo
   - ConverseInfo
@@ -783,7 +760,7 @@ findInviteByCode:
   - code:
       - code
       - str
-  - ''
+  - 通过邀请码查找群组邀请信息
 findOpenapiBotId:
   - user.findOpenapiBotId
   - - null
@@ -791,7 +768,7 @@ findOpenapiBotId:
   - email:
       - email
       - str
-  - ''
+  - 根据用户邮箱获取开放平台机器人id
 modifyGroupPanel:
   - group.modifyGroupPanel
   - - null
@@ -828,7 +805,7 @@ modifyGroupPanel:
     type_:
       - type
       - int
-  - ''
+  - 修改群组面板
 setAppCapability:
   - openapi.app.setAppCapability
   - - null
@@ -839,7 +816,7 @@ setAppCapability:
     capability:
       - capability
       - list[str]
-  - ''
+  - 设置应用开放的能力
 updateGroupField:
   - group.updateGroupField
   - - null
@@ -884,8 +861,7 @@ getGroupBasicInfo:
   - 获取群基本消息
 setFriendNickname:
   - friend.setFriendNickname
-  - - null
-    - bool
+  - - bool
   - nickname:
       - nickname
       - str
@@ -928,7 +904,7 @@ claimTemporaryUser:
       - username
       - Optional[str]
       - null
-  - ''
+  - 认领临时用户
 fetchNearbyMessage:
   - chat.message.fetchNearbyMessage
   - list[MessageRet]
@@ -1045,12 +1021,11 @@ appendDMConverseMembers:
   - 在多人会话中添加成员
 getGroupLobbyConverseId:
   - group.getGroupLobbyConverseId
-  - - null
-    - str
+  - - str
   - groupId:
       - groupId
       - str
-  - 不知道啥作用, 但是返回的是converseId
+  - 获取群组大厅的会话ID
 searchUserWithUniqueName:
   - user.searchUserWithUniqueName
   - Optional[UserInfo]

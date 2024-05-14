@@ -23,6 +23,7 @@ def gencode(flag):
         else:
             (action, ret, kv) = arr
             desc = ""
+        desc = desc.replace("\\n", "\n" + " " * 8)
         if "|" in name:
             name, method = name.split("|")[:2]
             name.strip()
@@ -67,6 +68,8 @@ def gencode(flag):
             code = f"TypeAdapter({ret}).validate_python({code})"
             code_a = f"TypeAdapter({ret}).validate_python({code_a})"
             fret = f" -> {ret}"
+        elif isinstance(ret, list) and len(ret) == 1:
+            fret = f" -> {ret[0]}"
 
         kwargs = ", *, " + ", ".join(kwargs) if kwargs else ""
         if flag:

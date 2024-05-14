@@ -9,11 +9,13 @@ from .model import (
     Ack,
     AddFriendRequestRet,
     BaseGroupInfo,
+    BotInfoRet,
     ClientConfig,
     ConverseInfo,
     FileInfo,
     FindAndJoinRoomRet,
     GroupAndPanelIds,
+    GroupDataRet,
     GroupInfo,
     Health,
     InviteCodeInfo,
@@ -48,7 +50,7 @@ class API(BaseBot, ABC):
         """获取文件url (但是参数不知道填啥)"""
         return await self.call_api("file.get", objectName=objectName)
 
-    async def ackInbox(self, *, inboxItemIds: list[str]):
+    async def ackInbox(self, *, inboxItemIds: list[str]) -> bool:
         """标记消息为已读"""
         return await self.call_api("chat.inbox.ack", inboxItemIds=inboxItemIds)
 
@@ -70,6 +72,7 @@ class API(BaseBot, ABC):
         nickname: Optional[str] = Undefined,
         username: Optional[str] = Undefined,
     ):
+        """用户注册"""
         return await self.call_api(
             "user.register",
             email=email,
@@ -81,9 +84,11 @@ class API(BaseBot, ABC):
         )
 
     async def saveFile(self):
+        """通过文件流存储到本地"""
         return await self.call_api("file.save")
 
     async def statFile(self, *, objectName: str):
+        """获取客户端的信息"""
         return await self.call_api("file.stat", objectName=objectName)
 
     async def upload(self, *, file: bytes) -> FileInfo:
@@ -92,14 +97,16 @@ class API(BaseBot, ABC):
             await self.call_api("upload", file=file, use_api_=False, use_http_=True, use_sio_=False)
         )
 
-    async def authToken(self, *, appId: str, token: str, capability: Optional[list[str]] = Undefined):
+    async def authToken(self, *, appId: str, token: str, capability: Optional[list[str]] = Undefined) -> bool:
         """验证token"""
         return await self.call_api("openapi.app.authToken", appId=appId, token=token, capability=capability)
 
     async def createApp(self, *, appDesc: str, appIcon: str, appName: str):
+        """创建一个第三方应用"""
         return await self.call_api("openapi.app.create", appDesc=appDesc, appIcon=appIcon, appName=appName)
 
-    async def deleteApp(self, *, appId: str):
+    async def deleteApp(self, *, appId: str) -> bool:
+        """删除开放平台应用"""
         return await self.call_api("openapi.app.delete", appId=appId)
 
     async def loginUser(
@@ -119,6 +126,7 @@ class API(BaseBot, ABC):
         return await self.call_api("chat.ack.update", converseId=converseId, lastMessageId=lastMessageId)
 
     async def addBotUser(self, *, appId: str, groupId: str):
+        """在群组中添加机器人用户"""
         return await self.call_api("openapi.integration.addBotUser", appId=appId, groupId=groupId)
 
     async def addRequest(self, *, to: str, message: Optional[str] = Undefined) -> AddFriendRequestRet:
@@ -127,14 +135,16 @@ class API(BaseBot, ABC):
             await self.call_api("friend.request.add", to=to, message=message)
         )
 
-    async def allRelated(self):
-        return await self.call_api("friend.request.allRelated")
+    async def allRelated(self) -> list[AddFriendRequestRet]:
+        """所有与自己相关的好友请求, 包括自己发出的和别人发给自己的"""
+        return TypeAdapter(list[AddFriendRequestRet]).validate_python(await self.call_api("friend.request.allRelated"))
 
-    async def clearInbox(self):
+    async def clearInbox(self) -> bool:
         """清空所有的收件箱内容"""
         return await self.call_api("chat.inbox.clear")
 
-    async def setAppInfo(self, *, appId: str, fieldName: str, fieldValue: str):
+    async def setAppInfo(self, *, appId: str, fieldValue: str, fieldName: Literal["appName", "appDesc", "appIcon"]):
+        """修改应用信息"""
         return await self.call_api("openapi.app.setAppInfo", appId=appId, fieldName=fieldName, fieldValue=fieldValue)
 
     async def getMessage(self, *, messageId: str) -> MessageRet:
@@ -144,9 +154,10 @@ class API(BaseBot, ABC):
         )
 
     async def addConverse(self, *, converseId: str):
+        """加入或创建会话"""
         return await self.call_api("user.dmlist.addConverse", converseId=converseId)
 
-    async def addReaction(self, *, emoji: str, messageId: str):
+    async def addReaction(self, *, emoji: str, messageId: str) -> bool:
         """添加消息表情"""
         return await self.call_api("chat.message.addReaction", emoji=emoji, messageId=messageId)
 
@@ -190,6 +201,8 @@ class API(BaseBot, ABC):
         )
 
     async def verifyEmail(self, *, email: str):
+        """验证用户邮箱, 会往邮箱发送一个 OTP 作为唯一标识
+        需要在注册的时候带上"""
         return await self.call_api("user.verifyEmail", email=email)
 
     async def configClient(self) -> ClientConfig:
@@ -200,10 +213,10 @@ class API(BaseBot, ABC):
         """删除邀请码"""
         return await self.call_api("group.invite.deleteInvite", groupId=groupId, inviteId=inviteId)
 
-    async def getGroupData(self, *, name: str, groupId: str):
+    async def getGroupData(self, *, name: str, groupId: str) -> GroupDataRet:
         return await self.call_api("group.extra.getGroupData", name=name, groupId=groupId)
 
-    async def getPanelData(self, *, name: str, groupId: str, panelId: str):
+    async def getPanelData(self, *, name: str, groupId: str, panelId: str) -> dict:
         """获取面板数据"""
         return await self.call_api("group.extra.getPanelData", name=name, groupId=groupId, panelId=panelId)
 
@@ -212,6 +225,7 @@ class API(BaseBot, ABC):
         return await self.call_api("group.isGroupOwner", groupId=groupId)
 
     async def listRegistry(self):
+        """getPluginList"""
         return await self.call_api("plugin.registry.list")
 
     async def removeFriend(self, *, friendUserId: str):
@@ -230,11 +244,11 @@ class API(BaseBot, ABC):
         """撤销申请好友请求. 填不存在的requestId会报错, 不符合格式的也会报错"""
         return await self.call_api("friend.request.cancel", requestId=requestId)
 
-    async def checkIsFriend(self, *, targetId: str):
+    async def checkIsFriend(self, *, targetId: str) -> bool:
         """检查对方是否为自己好友"""
         return await self.call_api("friend.checkIsFriend", targetId=targetId)
 
-    async def deleteMessage(self, *, messageId: str):
+    async def deleteMessage(self, *, messageId: str) -> bool:
         """删除消息"""
         return await self.call_api("chat.message.deleteMessage", messageId=messageId)
 
@@ -242,7 +256,7 @@ class API(BaseBot, ABC):
         """获取网关健康状态"""
         return TypeAdapter(Health).validate_python(await self.call_api("gateway.health"))
 
-    async def getAllFriends(self):
+    async def getAllFriends(self) -> list[dict[str, str]]:
         """获取全部好友的ID
         [{'id': '***'}]"""
         return await self.call_api("friend.getAllFriends")
@@ -257,13 +271,14 @@ class API(BaseBot, ABC):
             await self.call_api("chat.message.recallMessage", messageId=messageId)
         )
 
-    async def resetPassword(self, *, otp: str, email: str, password: str):
+    async def resetPassword(self, *, otp: str, email: str, password: str) -> bool:
+        """重置密码"""
         return await self.call_api("user.resetPassword", otp=otp, email=email, password=password)
 
-    async def saveGroupData(self, *, data: str, name: str, groupId: str):
+    async def saveGroupData(self, *, data: str, name: str, groupId: str) -> bool:
         return await self.call_api("group.extra.saveGroupData", data=data, name=name, groupId=groupId)
 
-    async def savePanelData(self, *, data: str, name: str, groupId: str, panelId: str):
+    async def savePanelData(self, *, data: str, name: str, groupId: str, panelId: str) -> bool:
         """保存面板数据"""
         return await self.call_api("group.extra.savePanelData", data=data, name=name, groupId=groupId, panelId=panelId)
 
@@ -276,36 +291,42 @@ class API(BaseBot, ABC):
         )
 
     async def setAppBotInfo(self, *, appId: str, fieldName: str, fieldValue: Any):
+        """设置Bot的设置信息"""
         return await self.call_api("openapi.app.setAppBotInfo", appId=appId, fieldName=fieldName, fieldValue=fieldValue)
 
     async def forgetPassword(self, *, email: str):
+        """忘记密码
+        流程: 发送一个链接到远程，点开后可以直接重置密码"""
         return await self.call_api("user.forgetPassword", email=email)
 
     async def getAllConverse(self) -> list[str]:
         """获取所有会话"""
-        return TypeAdapter(list[str]).validate_python(await self.call_api("user.dmlist.getAllConverse"))
+        return await self.call_api("user.dmlist.getAllConverse")
 
-    async def getPermissions(self, *, groupId: str):
+    async def getPermissions(self, *, groupId: str) -> list[str]:
+        """获取群组成员权限(对外)"""
         return await self.call_api("group.getPermissions", groupId=groupId)
 
     async def modifyPassword(self, *, newPassword: str, oldPassword: str):
         """修改密码(好像没啥用)"""
         return await self.call_api("user.modifyPassword", newPassword=newPassword, oldPassword=oldPassword)
 
-    async def removeConverse(self, *, converseId: str):
-        """删除会话\n{"modifiedCount":1}"""
+    async def removeConverse(self, *, converseId: str) -> dict:
+        """删除会话
+        {"modifiedCount":1}"""
         return await self.call_api("user.dmlist.removeConverse", converseId=converseId)
 
-    async def removeReaction(self, *, emoji: str, messageId: str):
+    async def removeReaction(self, *, emoji: str, messageId: str) -> bool:
         """删除消息表情"""
         return await self.call_api("chat.message.removeReaction", emoji=emoji, messageId=messageId)
 
     async def checkTokenValid(self, *, token: str):
+        """检查授权是否可用"""
         return await self.call_api("user.checkTokenValid", token=token)
 
     async def checkUserOnline(self, *, userIds: list[str]) -> list[bool]:
         """检查用户是否在线"""
-        return TypeAdapter(list[bool]).validate_python(await self.call_api("gateway.checkUserOnline", userIds=userIds))
+        return await self.call_api("gateway.checkUserOnline", userIds=userIds)
 
     async def createGroupRole(self, *, groupId: str, roleName: str, permissions: list[str]) -> GroupInfo:
         """创建群用户组"""
@@ -321,7 +342,7 @@ class API(BaseBot, ABC):
 
     async def editGroupInvite(
         self, *, code: str, groupId: str, expireAt: Optional[int] = Undefined, usageLimit: Optional[int] = Undefined
-    ):
+    ) -> bool:
         """编辑群组邀请码"""
         return await self.call_api(
             "group.invite.editGroupInvite", code=code, groupId=groupId, expireAt=expireAt, usageLimit=usageLimit
@@ -338,24 +359,26 @@ class API(BaseBot, ABC):
         """获取多个用户信息"""
         return TypeAdapter(list[UserInfo]).validate_python(await self.call_api("user.getUserInfoList", userIds=userIds))
 
-    async def getUserSettings(self):
+    async def getUserSettings(self) -> dict:
         """获取用户设置"""
         return await self.call_api("user.getUserSettings")
 
-    async def muteGroupMember(self, *, muteMs: int, groupId: str, memberId: str):
+    async def muteGroupMember(self, *, muteMs: int, groupId: str, memberId: str) -> bool:
         """禁言群成员"""
         return await self.call_api("group.muteGroupMember", muteMs=muteMs, groupId=groupId, memberId=memberId)
 
     async def setAppOAuthInfo(self, *, appId: str, fieldName: str, fieldValue: Any):
+        """设置OAuth的设置信息"""
         return await self.call_api(
             "openapi.app.setAppOAuthInfo", appId=appId, fieldName=fieldName, fieldValue=fieldValue
         )
 
-    async def setUserSettings(self, *, settings: dict):
+    async def setUserSettings(self, *, settings: dict) -> dict:
         """修改用户设置"""
         return await self.call_api("user.setUserSettings", settings=settings)
 
     async def updateUserExtra(self, *, fieldName: str, fieldValue: Any):
+        """修改用户额外数据"""
         return await self.call_api("user.updateUserExtra", fieldName=fieldName, fieldValue=fieldValue)
 
     async def updateUserField(self, *, fieldName: str, fieldValue: Any) -> UserInfo:
@@ -380,7 +403,7 @@ class API(BaseBot, ABC):
         parentId: Optional[str] = Undefined,
         provider: Optional[str] = Undefined,
         pluginPanelName: Optional[str] = Undefined,
-    ):
+    ) -> dict:
         """创建群组面板"""
         return await self.call_api(
             "group.createGroupPanel",
@@ -399,8 +422,11 @@ class API(BaseBot, ABC):
             await self.call_api("group.deleteGroupPanel", groupId=groupId, panelId=panelId)
         )
 
-    async def ensureOpenapiBot(self, *, botId: str, nickname: str, avatar: Optional[str] = Undefined):
-        return await self.call_api("user.ensureOpenapiBot", botId=botId, avatar=avatar, nickname=nickname)
+    async def ensureOpenapiBot(self, *, botId: str, nickname: str, avatar: Optional[str] = Undefined) -> BotInfoRet:
+        """确保第三方开放平台机器人存在(没有则自动创建)"""
+        return TypeAdapter(BotInfoRet).validate_python(
+            await self.call_api("user.ensureOpenapiBot", botId=botId, avatar=avatar, nickname=nickname)
+        )
 
     async def findConverseInfo(self, *, converseId: str) -> ConverseInfo:
         """获取会话信息"""
@@ -409,11 +435,13 @@ class API(BaseBot, ABC):
         )
 
     async def findInviteByCode(self, *, code: str) -> Optional[InviteCodeInfo]:
+        """通过邀请码查找群组邀请信息"""
         return TypeAdapter(Optional[InviteCodeInfo]).validate_python(
             await self.call_api("group.invite.findInviteByCode", code=code)
         )
 
     async def findOpenapiBotId(self, *, email: str):
+        """根据用户邮箱获取开放平台机器人id"""
         return await self.call_api("user.findOpenapiBotId", email=email)
 
     async def modifyGroupPanel(
@@ -429,6 +457,7 @@ class API(BaseBot, ABC):
         pluginPanelName: Optional[str] = Undefined,
         fallbackPermissions: Optional[list[str]] = Undefined,
     ):
+        """修改群组面板"""
         return await self.call_api(
             "group.modifyGroupPanel",
             meta=meta,
@@ -443,6 +472,7 @@ class API(BaseBot, ABC):
         )
 
     async def setAppCapability(self, *, appId: str, capability: list[str]):
+        """设置应用开放的能力"""
         return await self.call_api("openapi.app.setAppCapability", appId=appId, capability=capability)
 
     async def updateGroupField(self, *, groupId: str, fieldName: str, fieldValue: Any):
@@ -467,7 +497,7 @@ class API(BaseBot, ABC):
             await self.call_api("group.getGroupBasicInfo", groupId=groupId)
         )
 
-    async def setFriendNickname(self, *, nickname: str, targetId: str):
+    async def setFriendNickname(self, *, nickname: str, targetId: str) -> bool:
         """设置好友昵称"""
         return await self.call_api("friend.setFriendNickname", nickname=nickname, targetId=targetId)
 
@@ -486,6 +516,7 @@ class API(BaseBot, ABC):
         emailOTP: Optional[str] = Undefined,
         username: Optional[str] = Undefined,
     ):
+        """认领临时用户"""
         return await self.call_api(
             "user.claimTemporaryUser",
             email=email,
@@ -549,8 +580,8 @@ class API(BaseBot, ABC):
         """在多人会话中添加成员"""
         return await self.call_api("chat.converse.appendDMConverseMembers", memberIds=memberIds, converseId=converseId)
 
-    async def getGroupLobbyConverseId(self, *, groupId: str):
-        """不知道啥作用, 但是返回的是converseId"""
+    async def getGroupLobbyConverseId(self, *, groupId: str) -> str:
+        """获取群组大厅的会话ID"""
         return await self.call_api("group.getGroupLobbyConverseId", groupId=groupId)
 
     async def searchUserWithUniqueName(self, *, uniqueName: str) -> Optional[UserInfo]:
