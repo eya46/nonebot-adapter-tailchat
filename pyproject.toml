@@ -49,6 +49,7 @@ ignore = [
     "PYI048", # Function body must contain exactly one statement
     "PYI021", # Docstrings should not be included in stubs
     #    "T201", # no print
+    "E742", # I
 ]
 
 [tool.ruff.format]

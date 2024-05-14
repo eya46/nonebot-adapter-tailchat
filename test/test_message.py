@@ -1,11 +1,14 @@
 import pytest
 
 from nonebot_adapter_tailchat import Message, MessageSegment
-from nonebot_adapter_tailchat.message import BBCode, Italic, Url
+from nonebot_adapter_tailchat.message import BBCode, I, Url
 
 
 @pytest.mark.asyncio()
 async def test_message_decode():
+    # 同标签嵌套
+    assert Message("[url=777][url=666]test[/url][/url]")[0].get_text() == "[url=666]test[/url]"
+
     # text
     message = Message("[b\n]test[i]test[/b]test[/i\n]")
     assert (
@@ -77,7 +80,7 @@ async def test_message_extend():
 
     message = MessageSegment.text("test")
     assert message.type == "text"
-    assert message.extend(MessageSegment.text("test", b=True)).type == "bold"
+    assert message.extend(MessageSegment.text("test", b=True)).type == "b"
 
     assert MessageSegment.text("test", b=True, i=True).type == "rich"
 
@@ -116,5 +119,22 @@ async def test_message_func():
     msg = Message([MessageSegment.text("test", i=True), MessageSegment.url(url="https://example.com")])
     assert Url.tag_in(msg)
     assert Url in msg
-    assert Italic.tag_in(msg)
-    assert Italic in msg
+    assert I.tag_in(msg)
+    assert I in msg
+
+    url = msg.get_tag(Url)
+    assert url.tag_in(msg)
+    assert url in msg
+
+
+@pytest.mark.asyncio()
+async def test_message_contains():
+    message = (
+        Message("test")
+        + MessageSegment.url(url="https://example.com")
+        + MessageSegment.text("test", i=True)
+        + MessageSegment.text("test", b=True, i=True)
+    )
+    assert message.has("text") and "text" in message
+    assert message.has("url") and "url" in message
+    assert message.has("i") and "i" in message

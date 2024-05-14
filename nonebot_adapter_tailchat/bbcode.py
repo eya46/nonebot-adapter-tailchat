@@ -32,14 +32,14 @@ from sys import getrecursionlimit
 from typing import TYPE_CHECKING, Union
 
 if TYPE_CHECKING:
-    from .message import B, MessageSegment
+    from .message import BBCODE, MessageSegment
 
 
 class Parser:
     def __init__(
         self,
         seg: type["MessageSegment"],
-        tags: dict[str, type["B"]],
+        tags: dict[str, type["BBCODE"]],
         drop_unrecognized=False,
         max_tag_depth=None,
     ):
@@ -140,17 +140,19 @@ class Parser:
                                 continue
                             # 从右到左, 找到第一个匹配的未闭合的标签, 找到后将其闭合
                             # 期间的表判断 1. tags为空 则加入其中
-                            # 2. 有tag, 判断relation, 如果不相同的relation则把其中tag变成text, 并加入tag.
+                            # 2. 有tag, 判断relation, 如果不相同的relation/重复的BBCode 则把其中tag变成text, 并加入tag.
                             #   相同则直接加入tag
                             tag_start = tags[tag_name].pop()
-                            bbcode_start = tag_start.data["tags"][0]
+                            bbcode_start = tag_start.tags[0]
                             for i in tokens[::-1]:
                                 if isinstance(i, self.seg):  # 是纯文本
-                                    if len(i.data["tags"]) == 0:
+                                    if len(i.tags) == 0:
                                         i.extend(tag_start)
                                     else:
-                                        if any(_.relation != bbcode_start.relation for _ in i.data["tags"][:]):
-                                            for _ in i.data["tags"][::-1]:
+                                        if bbcode_start in i.tags or any(
+                                            _.relation != bbcode_start.relation for _ in i.tags
+                                        ):
+                                            for _ in i.tags[::-1]:
                                                 i.down(_)
                                         i.extend(tag_start)
                                 else:  # 是标签
