@@ -107,6 +107,7 @@ class Bot(API):
             )
         )
 
+    @_with_update_info
     async def login(self, jwt: Optional[str] = None):
         if jwt:
             jwt_data = self.decode_jwt(jwt)[1]

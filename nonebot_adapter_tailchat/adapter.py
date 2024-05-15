@@ -100,7 +100,6 @@ class Adapter(BaseAdapter):
             try:
                 await wait_for(bot.login(bot.base_info.jwt), self.adapter_config.time_out)
                 await wait_for(self._connect_bot(bot), self.adapter_config.time_out)
-                await bot.update_info(bot.base_info.jwt)
                 self._bot_connect(bot)
                 connected = True
                 await gather(bot.sio.wait(), _wait(), bot.keep_alive())
