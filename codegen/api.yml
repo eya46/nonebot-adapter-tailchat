@@ -31,7 +31,7 @@ getFile:
   - objectName:
       - objectName
       - str
-  - 获取文件url (但是参数不知道填啥)
+  - 获取客户端的信息
 ackInbox:
   - chat.inbox.ack
   - - bool

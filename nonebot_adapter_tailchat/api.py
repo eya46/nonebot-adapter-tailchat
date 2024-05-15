@@ -47,7 +47,7 @@ class API(BaseBot, ABC):
         return TypeAdapter(Whoami).validate_python(await self.call_api("user.whoami"))
 
     async def getFile(self, *, objectName: str):
-        """获取文件url (但是参数不知道填啥)"""
+        """获取客户端的信息"""
         return await self.call_api("file.get", objectName=objectName)
 
     async def ackInbox(self, *, inboxItemIds: list[str]) -> bool:
