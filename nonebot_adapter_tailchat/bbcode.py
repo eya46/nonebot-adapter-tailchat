@@ -39,7 +39,7 @@ class Parser:
     def __init__(
         self,
         seg: type["MessageSegment"],
-        tags: dict[str, type["BBCODE"]],
+        tags: dict[str, Union[type["BBCODE"], dict[str, "BBCODE"]]],
         drop_unrecognized=False,
         max_tag_depth=None,
     ):
@@ -161,7 +161,11 @@ class Parser:
                                         tokens.remove(i)
                                         break
                         else:
-                            seg = self.seg.build("", [self.tags[tag_name]], opts)
+                            seg = self.seg.build(
+                                "",
+                                [self.tags["card"][opts.get("type")] if tag_name == "card" else self.tags[tag_name]],
+                                opts,
+                            )
                             tags[tag_name].append(seg)
                             tokens.append((seg, tag_name, tag))
                     elif valid and self.drop_unrecognized and tag_name not in self.tags:

@@ -4,7 +4,7 @@ from collections.abc import Iterable
 from dataclasses import dataclass
 from functools import wraps
 from inspect import isclass
-from typing import Optional, SupportsIndex, TypedDict, TypeVar, Union
+from typing import Final, Optional, SupportsIndex, TypedDict, TypeVar, Union
 
 from nonebot.adapters import (
     Message as BaseMessage,
@@ -17,23 +17,31 @@ from typing_extensions import Self, overload
 from .bbcode import Parser
 
 BBCODE = TypeVar("BBCODE", bound="BBCode")
-BBCODES: dict[str, type[BBCODE]] = {}
+BBCODES: dict[str, Union[type[BBCODE], dict[str, BBCODE]]] = {}
 RELATION: dict[int, list[BBCODE]] = defaultdict(list)
 
 
 def _register_bbcode(code: Union[int, type[BBCODE]]):
+    def _(bb: type[BBCODE]) -> type[BBCODE]:
+        if bb.tags != {"card"}:
+            for tag in bb.tags:
+                BBCODES[tag] = bb
+            return bb
+        if (card := BBCODES.get("card")) is None:
+            BBCODES["card"] = defaultdict(lambda: Card)  # type: ignore
+        if bb.__name__ != "Card":
+            card[bb.type] = bb
+
     if isinstance(code, int):
 
-        def _(bbcode: type[BBCODE]) -> type[BBCODE]:
+        def __(bbcode: type[BBCODE]) -> type[BBCODE]:
             bbcode.relation = code
-            for tag in bbcode.tags:
-                BBCODES[tag] = bbcode
+            _(bbcode)
             RELATION[code].append(bbcode)
             return bbcode
 
-        return _
-    for tag in code.tags:
-        BBCODES[tag] = code
+        return __
+    _(code)
     _code = min(min(RELATION.keys() or [0]), 0) - 1
     code.relation = _code
     RELATION[_code].append(code)
@@ -75,7 +83,9 @@ class BBCode(UserDict, ABC):
             + (
                 (f"{self.tag}={self.main}" if self.main else self.tag)
                 + " "
-                + " ".join(f"{k}={v}" for k, v in self.items() if v and k in self.keys_ and k not in self.tags)
+                + " ".join(
+                    f"{k}={v}" for k in sorted(self.keys_, reverse=True) if (v := self[k]) and k not in self.tags
+                )
             ).rstrip(" ")
             + "]"
         )
@@ -110,7 +120,7 @@ class BBCode(UserDict, ABC):
         return f"{self.tag}({self.data})" if len(self.data) else f"{self.tag}"
 
     def __missing__(self, key) -> None:
-        return None
+        return getattr(self, key, None)
 
 
 @_register_bbcode
@@ -120,12 +130,10 @@ class Markdown(BBCode):
 
 @_register_bbcode
 class Card(BBCode):
-    tags = {"card"}
+    tags: Final[set[str]] = {"card"}
     keys_ = {"type", "data"}
 
-    @property
-    def type(self) -> str:
-        return self["type"]
+    type: str
 
     @property
     def card_data(self) -> str:
@@ -133,9 +141,10 @@ class Card(BBCode):
 
 
 @_register_bbcode
-class File(BBCode):
-    tags = {"file"}
-    keys_ = {"url"}
+class File(Card):
+    keys_ = {"type", "url"}
+
+    type: str = "file"
 
     @property
     def url(self) -> str:

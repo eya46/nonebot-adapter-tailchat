@@ -68,8 +68,12 @@ async def test_message_decode():
     # file
     assert (
         MessageSegment.file(name="test", url="https://example.com/file.txt").decode()
-        == "[file url=https://example.com/file.txt]test[/file]"
+        == "[card url=https://example.com/file.txt type=file]test[/card]"
     )
+
+    assert Message("[card url=https://example.com/file.txt type=file]test[/card]")[0].type == "file"
+    assert Message("[card type=test data=114514]test[/card]")[0].type == "card"
+    assert Message("[card url type=file]test[/card]")[0].type == "file"
 
 
 @pytest.mark.asyncio()
