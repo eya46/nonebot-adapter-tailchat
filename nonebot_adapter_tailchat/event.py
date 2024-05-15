@@ -87,11 +87,11 @@ class Event(BaseEvent, ABC):
 class NoticeEvent(Event, ABC):
     event_type: Literal["notice"] = "notice"
 
-    def get_message(self) -> Message:
-        raise ValueError("Event has no message!")
-
     def get_session_id(self) -> str:
-        raise ValueError("Event has no context!")
+        raise NotImplementedError
+
+    def get_message(self) -> Message:
+        raise NotImplementedError
 
 
 class RequestEvent(Event, ABC):
@@ -171,6 +171,17 @@ def register_event_class(event_class: type[E]) -> type[E]:
         ) from e  # event_name 必须 有默认值 或 Literal[str] 类型注解
     EVENT_CLASSES[event_name] = event_class
     return event_class
+
+
+def remove_event_class(event_class: type[E]) -> type[E]:
+    if event_class.model_fields["event_type"].default == PydanticUndefined:
+        return event_class
+    try:
+        event_name = getattr(event_class, "event_name", get_args(event_class.__annotations__["event_name"])[0])
+        EVENT_CLASSES.pop(event_name, None)
+        return event_class
+    except:
+        return event_class
 
 
 @register_event_class
@@ -452,17 +463,16 @@ class MessageUpdateEvent(DefaultMessageEvent):
     event_name: Literal["notify:chat.message.update"]
 
 
-class AtEvent(Event, ABC):
-    event_type: Literal["message"] = "message"
+class AtEvent(Event, ABC): ...
+
+
+@register_event_class
+class AtMessageEvent(MessageEvent, AtEvent):
+    event_name: Literal["notify:chat.inbox.append"]
 
     type: str
 
     v: int = Field(alias="__v")
-
-
-@register_event_class
-class AtMessageEvent(AtEvent, MessageEvent):
-    event_name: Literal["notify:chat.inbox.append"]
 
     id: ObjectId = Field(alias="_id")
     userId: ObjectId
@@ -501,8 +511,9 @@ class AtMessageEvent(AtEvent, MessageEvent):
 
 
 @register_event_class
-class AtMessageUpdateEvent(AtEvent, NoticeEvent):
-    """At 消息更新事件"""
+class AtMessageUpdateEvent(NoticeEvent, AtEvent):
+    """At 消息更新事件
+    (目前只有@Bot消息删除会触发)"""
 
     event_name: Literal["notify:chat.inbox.updated"]
 
