@@ -1,3 +1,4 @@
+from asyncio import sleep
 from base64 import urlsafe_b64decode
 from functools import wraps
 from hashlib import md5
@@ -18,6 +19,7 @@ from .model import (
     MessageRet,
     TokenInfo,
 )
+from .util import log
 
 if TYPE_CHECKING:
     from .adapter import Adapter
@@ -108,7 +110,7 @@ class Bot(API):
     async def login(self, jwt: Optional[str] = None):
         if jwt:
             jwt_data = self.decode_jwt(jwt)[1]
-            if jwt_data.exp.timestamp() > time():
+            if (jwt_data.exp.timestamp() - time()) > 3600:
                 self.base_info.jwt = jwt
                 return
         if self.base_info.appId and self.base_info.appSecret:
@@ -116,6 +118,16 @@ class Bot(API):
             self.base_info.jwt = data.jwt
             return
         raise ValueError("必须提供jwt或appId和appSecret")
+
+    async def keep_alive(self):
+        try:
+            jwt_data = self.decode_jwt(self.base_info.jwt)[1]
+            if (jwt_data.exp.timestamp() - time()) < 3600:
+                await self.login()
+            log.debug(f"{self} | keep alive")
+            await sleep(60)
+        except Exception as e:
+            log.debug(f"{self} | keep alive failed: <r>{e}</r>")
 
     @_with_update_info
     async def updateNickname(self, nickname: str):

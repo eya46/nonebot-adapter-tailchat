@@ -103,7 +103,7 @@ class Adapter(BaseAdapter):
                 await bot.update_info(bot.base_info.jwt)
                 self._bot_connect(bot)
                 connected = True
-                await gather(bot.sio.wait(), _wait())
+                await gather(bot.sio.wait(), _wait(), bot.keep_alive())
             except DisconnectException:
                 log.warning(f"Bot {escape_tag(str(bot))} socketio connection closed")
             except AsyncTimeoutError:
