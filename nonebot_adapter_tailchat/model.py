@@ -43,7 +43,7 @@ class Panel(RawModel):
     provider: Optional[str] = None
 
 
-class Replay(RawModel):
+class Reply(RawModel):
     id: str = Field(alias="_id")
     content: str
     author: str
@@ -70,7 +70,7 @@ class Reaction(RawModel):
 class MessageMeta(RawModel):
     mentions: list[str]
 
-    replay: Optional[Replay] = None
+    reply: Optional[Reply] = None
 
 
 class Payload(RawModel):

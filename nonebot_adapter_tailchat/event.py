@@ -17,7 +17,7 @@ from .model import (
     ObjectId,
     Payload,
     Reaction,
-    Replay,
+    Reply,
     StaticAnnouncement,
     datetime,
 )
@@ -423,8 +423,8 @@ class DefaultMessageEvent(MessageEvent):
         return self.groupId
 
     @property
-    def replay(self) -> Optional[Replay]:
-        return self.meta.replay if self.meta else None
+    def reply(self) -> Optional[Reply]:
+        return self.meta.reply if self.meta else None
 
     def get_message(self) -> Message:
         return self.content
@@ -437,7 +437,7 @@ class DefaultMessageEvent(MessageEvent):
         return (
             not self.is_group()
             or (self.meta and self.self_id in self.meta.mentions)
-            or (self.meta and self.meta.replay and self.self_id == self.meta.replay.author)
+            or (self.meta and self.meta.reply and self.self_id == self.meta.reply.author)
         )
 
     def get_event_description(self) -> str:
