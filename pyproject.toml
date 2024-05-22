@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nonebot-adapter-tailchat"
-version = "0.1.0b10"
+version = "0.1.0b11"
 description = "NoneBot2 Tailchat 适配器 / Tailchat adapter for nonebot2"
 authors = ["eya46 <61458340+eya46@users.noreply.github.com>"]
 license = "Apache-2.0"
