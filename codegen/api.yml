@@ -94,13 +94,6 @@ statFile:
       - objectName
       - str
   - 获取客户端的信息
-upload!~:
-  - upload
-  - FileInfo
-  - file:
-      - file
-      - bytes
-  - 上传文件
 authToken:
   - openapi.app.authToken
   - - bool
@@ -303,7 +296,7 @@ verifyEmail:
   - email:
       - email
       - str
-  - '验证用户邮箱, 会往邮箱发送一个 OTP 作为唯一标识\n需要在注册的时候带上'
+  - 验证用户邮箱, 会往邮箱发送一个 OTP 作为唯一标识\n需要在注册的时候带上
 configClient:
   - config.client
   - ClientConfig
@@ -1369,6 +1362,13 @@ plugin:com.msgbyte.github.subscribe.webhook.callback:
       - userId
       - str
   - ''
+~upload!~:
+  - upload
+  - FileInfo
+  - file:
+      - file
+      - bytes
+  - 上传文件
 ~addToSet:
   - config.addToSet
   - - null
