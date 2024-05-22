@@ -12,7 +12,6 @@ from .model import (
     BotInfoRet,
     ClientConfig,
     ConverseInfo,
-    FileInfo,
     FindAndJoinRoomRet,
     GroupAndPanelIds,
     GroupDataRet,
@@ -90,12 +89,6 @@ class API(BaseBot, ABC):
     async def statFile(self, *, objectName: str):
         """获取客户端的信息"""
         return await self.call_api("file.stat", objectName=objectName)
-
-    async def upload(self, *, file: bytes) -> FileInfo:
-        """上传文件"""
-        return TypeAdapter(FileInfo).validate_python(
-            await self.call_api("upload", file=file, use_api_=False, use_http_=True, use_sio_=False)
-        )
 
     async def authToken(self, *, appId: str, token: str, capability: Optional[list[str]] = Undefined) -> bool:
         """验证token"""

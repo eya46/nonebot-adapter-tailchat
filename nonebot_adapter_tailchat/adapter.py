@@ -39,6 +39,7 @@ class Adapter(BaseAdapter):
         use_http = data.get("use_http_", bot.base_info.useHttp)  # 使用http
         use_sio = data.get("use_sio_", not use_http)  # 使用socketio
         use_api = data.get("use_api_", True)  # url / 'api' / api
+        raw_data_ = data.pop("raw_data_", False)  # 返回原始数据
         if not bot.base_info.useHttp and (not use_sio or use_http):
             log("WARNING", f"use_http is False, but api <y>{api}</y> use / strictly.")
         if use_http or not use_sio:
@@ -49,8 +50,15 @@ class Adapter(BaseAdapter):
                 Request(
                     "POST",
                     str((URL(bot.url) / "api" if use_api else URL(bot.url)) / api),
-                    json={key: value for key, value in data.items() if value != Undefined},
                     headers={"X-Token": bot.base_info.jwt or ""},
+                    **(
+                        data.get(
+                            "kvs_",
+                            {
+                                "json": {key: value for key, value in data.items() if value != Undefined},
+                            },
+                        )
+                    ),
                 )
             )
             data = self._loads(resp.content)
@@ -58,7 +66,7 @@ class Adapter(BaseAdapter):
         else:
             data = await bot.sio.call(api, {key: value for key, value in data.items() if value != Undefined})
             self._handle_socketio_api(data)
-        return data.get("data")
+        return data if raw_data_ else data.get("data")
 
     async def _setup(self):
         if any(i.useHttp for i in self.adapter_config.bots_info) and not self.is_http_client_driver:

@@ -16,6 +16,7 @@ from .event import Event, MessageEvent
 from .message import Message, MessageSegment
 from .model import (
     BaseBotInfo,
+    FileInfo,
     JwtPayload,
     MessageRet,
     TokenInfo,
@@ -140,3 +141,18 @@ class Bot(API):
     async def updateAvatar(self, avatar: str):
         """更新头像，机器人重登后就失效了"""
         return await self.updateUserField(fieldName="avatar", fieldValue=avatar)
+
+    async def upload(self, *, file: bytes) -> FileInfo:
+        """上传文件"""
+        return TypeAdapter(FileInfo).validate_python(
+            await self.call_api(
+                "upload",
+                kvs_={
+                    "files": {"file": file},
+                },
+                use_api_=False,
+                use_http_=True,
+                use_sio_=False,
+                raw_data_=True,
+            )
+        )
