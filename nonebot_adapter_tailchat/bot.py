@@ -11,6 +11,7 @@ from socketio import AsyncClient as AsyncSocketClient
 
 from .api import API
 from .config import BotInfo
+from .const import Undefined
 from .event import Event, MessageEvent
 from .message import Message, MessageSegment
 from .model import (
@@ -95,9 +96,9 @@ class Bot(API):
             if isinstance(message, str)
             else message.decode(),
             converseId=event.get_converse_id(),
-            groupId=event.get_group_id(),
-            meta=kwargs.get("meta"),
-            plain=kwargs.get("plain"),
+            groupId=event.get_group_id() or Undefined,
+            meta=kwargs.get("meta", Undefined),
+            plain=kwargs.get("plain", Undefined),
         )
 
     async def loginBot(self, *, appId: str, appSecret: str) -> BaseBotInfo:
