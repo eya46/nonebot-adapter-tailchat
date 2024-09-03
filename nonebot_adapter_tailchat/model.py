@@ -1,6 +1,6 @@
 from collections import UserDict
 from datetime import datetime as raw_datetime
-from typing import Annotated, Literal, Optional
+from typing import Annotated, Literal, Optional, TypedDict
 
 from pydantic import BaseModel, BeforeValidator, ByteSize, ConfigDict, Field, RootModel
 
@@ -45,8 +45,8 @@ class Panel(RawModel):
 
 class Reply(RawModel):
     id: str = Field(alias="_id")
-    content: str
-    author: str
+    content: Optional[str] = None
+    author: Optional[str] = None
 
 
 class Emoji(RootModel[str]):
@@ -68,9 +68,20 @@ class Reaction(RawModel):
 
 
 class MessageMeta(RawModel):
-    mentions: list[str]
+    mentions: Optional[list[str]] = None
 
     reply: Optional[Reply] = None
+
+
+class ReplyDict(TypedDict, total=False):
+    _id: str
+    content: Optional[str]
+    author: Optional[str]
+
+
+class MessageMetaDict(TypedDict, total=False):
+    mentions: Optional[list[str]]
+    reply: Optional[ReplyDict]
 
 
 class Payload(RawModel):

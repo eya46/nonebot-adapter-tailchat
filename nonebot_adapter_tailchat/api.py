@@ -19,6 +19,7 @@ from .model import (
     Health,
     InviteCodeInfo,
     LastMessages,
+    MessageMetaDict,
     MessageRet,
     Panel,
     TemporaryUserInfo,
@@ -177,7 +178,7 @@ class API(BaseBot, ABC):
         *,
         content: str,
         converseId: str,
-        meta: Optional[dict] = Undefined,
+        meta: Optional[Union[dict, MessageMetaDict]] = Undefined,
         plain: Optional[str] = Undefined,
         groupId: Optional[str] = Undefined,
     ) -> MessageRet:
