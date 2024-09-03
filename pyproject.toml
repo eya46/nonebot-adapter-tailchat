@@ -23,7 +23,7 @@ msgpack = "^1.0.8"
 
 
 [tool.poetry.group.dev.dependencies]
-ruff = "^0.4.2"
+ruff = ">=0.6.3"
 nonebot2 = { extras = ["httpx"], version = "^2.3.0" }
 pyyaml = "^6.0.1"
 
@@ -51,6 +51,11 @@ ignore = [
     #    "T201", # no print
     "E742", # I
 ]
+
+[tool.ruff.lint.per-file-ignores]
+"codegen/*" = ["T201"]
+"plugins/*" = ["T201"]
+"test/*" = ["PT011"] # `pytest.raises(ValueError)` is too broad, set the `match` parameter or use a more specific exception
 
 [tool.ruff.format]
 quote-style = "double"

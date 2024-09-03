@@ -22,3 +22,5 @@ def load_bot():
 
     # 加载插件
     nonebot.load_plugins("plugins")
+
+    return None

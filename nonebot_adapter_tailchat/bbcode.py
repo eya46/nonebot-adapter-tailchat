@@ -118,8 +118,8 @@ class Parser:
         data = data.replace("\r\n", "\n").replace("\r", "\n")
         pos = 0
         ld = len(data)
-        tokens: list[Union["MessageSegment", tuple["MessageSegment", str, str]]] = []
-        tags: dict[str, deque["MessageSegment"]] = defaultdict(deque)
+        tokens: list[Union[MessageSegment, tuple[MessageSegment, str, str]]] = []
+        tags: dict[str, deque[MessageSegment]] = defaultdict(deque)
         while pos < ld:
             start = data.find(self.tag_opener, pos)  # 寻找下一个标签开始
 

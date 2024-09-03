@@ -4,7 +4,7 @@ from nonebot_adapter_tailchat import Message, MessageSegment
 from nonebot_adapter_tailchat.message import BBCode, I, Url
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_message_decode():
     # 同标签嵌套
     assert Message("[url=777][url=666]test[/url][/url]")[0].get_text() == "[url=666]test[/url]"
@@ -76,7 +76,7 @@ async def test_message_decode():
     assert Message("[card url type=file]test[/card]")[0].type == "file"
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_message_extend():
     # 不可嵌套的BBCode不能合并
     with pytest.raises(ValueError):
@@ -103,7 +103,7 @@ async def test_message_extend():
     assert MessageSegment.code("echo tailchat 666").decode() == "[code]echo tailchat 666[/code]"
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_register_bbcode():
     assert Message("[eya46]test[/eya46]")[0].get_text() == "[eya46]test[/eya46]"
 
@@ -115,7 +115,7 @@ async def test_register_bbcode():
     assert Message("[eya46]test[/eya46]")[0].get_text() == "test"
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_message_func():
     msg = MessageSegment.url(url="https://example.com")
     assert Url.tag_in(msg)
@@ -131,7 +131,7 @@ async def test_message_func():
     assert url in msg
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_message_contains():
     message = (
         Message("test")
@@ -139,6 +139,9 @@ async def test_message_contains():
         + MessageSegment.text("test", i=True)
         + MessageSegment.text("test", b=True, i=True)
     )
-    assert message.has("text") and "text" in message
-    assert message.has("url") and "url" in message
-    assert message.has("i") and "i" in message
+    assert message.has("text")
+    assert "text" in message
+    assert message.has("url")
+    assert "url" in message
+    assert message.has("i")
+    assert "i" in message
