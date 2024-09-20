@@ -127,7 +127,11 @@ class MessageEvent(Event, ABC):
         raise NotImplementedError
 
     def get_session_id(self) -> str:
-        return f"{self.get_group_id()}:{self.get_converse_id()}" if self.is_group() else self.get_converse_id()
+        return (
+            f"{self.get_group_id()}:{self.get_converse_id()}:{self.get_user_id()}"
+            if self.is_group()
+            else f"{self.get_converse_id()}:{self.get_user_id()}"
+        )
 
 
 class UnknownEvent(Event):
