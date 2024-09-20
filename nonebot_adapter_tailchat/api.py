@@ -423,7 +423,7 @@ class API(BaseBot, ABC):
         )
 
     async def findConverseInfo(self, *, converseId: str) -> ConverseInfo:
-        """获取会话信息"""
+        """获取会话信息, 只能用于DM(私信)/Multi(多人会话)"""
         return TypeAdapter(ConverseInfo).validate_python(
             await self.call_api("chat.converse.findConverseInfo", converseId=converseId)
         )

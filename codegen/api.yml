@@ -746,7 +746,7 @@ findConverseInfo:
   - converseId:
       - converseId
       - str
-  - 获取会话信息
+  - 获取会话信息, 只能用于DM(私信)/Multi(多人会话)
 findInviteByCode:
   - group.invite.findInviteByCode
   - Optional[InviteCodeInfo]
