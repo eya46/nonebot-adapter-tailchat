@@ -1,3 +1,4 @@
+import asyncio
 import json
 from asyncio import TimeoutError as AsyncTimeoutError
 from asyncio import create_task, gather, sleep, wait_for
@@ -25,7 +26,7 @@ class Adapter(BaseAdapter):
     def __init__(self, driver: Driver, **kwargs: Any):
         super().__init__(driver, **kwargs)
         self.adapter_config: Config = get_plugin_config(Config)
-        self.tasks = []
+        self.tasks: set[asyncio.Task] = set()
         self.on_ready(self._setup)
         self.on_ready(Message.update_parser)
         self.driver.on_shutdown(self._shutdown)
@@ -72,20 +73,23 @@ class Adapter(BaseAdapter):
         if any(i.useHttp for i in self.adapter_config.bots_info) and not self.is_http_client_driver:
             raise RuntimeError("HTTPClientMixin is required when use http")
         for i in self.adapter_config.bots_info:
-            self.tasks.append(
-                create_task(
-                    # 防止因 socketio/tailchat 奇怪错误导致的异常
-                    retry(self.adapter_config.reconnect_interval, self._handle_bot)(i),
-                    name=f"handle_bot_{i.appId}",
-                )
+            task = create_task(
+                # 防止因 socketio/tailchat 奇怪错误导致的异常
+                retry(self.adapter_config.reconnect_interval, self._handle_bot)(i),
+                name=f"handle_bot_{i.appId}",
             )
+            task.add_done_callback(self.tasks.discard)
+            self.tasks.add(task)
 
     async def _shutdown(self):
         for task in self.tasks:
             if not task.done():
                 task.cancel()
 
-        await gather(*self.tasks, return_exceptions=True)
+        await asyncio.gather(
+            *(asyncio.wait_for(task, timeout=10) for task in self.tasks),
+            return_exceptions=True,
+        )
 
     async def _handle_bot(self, bot_info: BotInfo):
         connected = False
