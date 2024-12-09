@@ -775,13 +775,13 @@ websockets = ["websockets (>=10.0)"]
 
 [[package]]
 name = "nonebug"
-version = "0.4.2"
+version = "0.4.3"
 description = "nonebot2 test framework"
 optional = false
 python-versions = "<4.0,>=3.9"
 files = [
-    {file = "nonebug-0.4.2-py3-none-any.whl", hash = "sha256:83d9229ec899819e9f5786eabc0c27b9dd0cd5d6e2e7438f59923ab822d5c555"},
-    {file = "nonebug-0.4.2.tar.gz", hash = "sha256:002dac00fed1fbff97574f3dffab2237fc41473b3bf3e73d2730ae34895bc137"},
+    {file = "nonebug-0.4.3-py3-none-any.whl", hash = "sha256:eb9b2c8ab3d45459a4f00ebdaae90729e9e9628575c0685fca4c871dd4cfd425"},
+    {file = "nonebug-0.4.3.tar.gz", hash = "sha256:e9592d2c7a42b76f4a336f98726cba92e1300f6bab155c8822e865919786f10c"},
 ]
 
 [package.dependencies]
